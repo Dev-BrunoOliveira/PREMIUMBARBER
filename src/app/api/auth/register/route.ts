@@ -21,11 +21,19 @@ export async function POST(req: Request) {
     const passwordHash = await bcrypt.hash(password, 10);
     const finalRole = role === "BARBER" ? "BARBER" : "CLIENT";
     
+    let slug = null;
+    if (finalRole === "BARBER") {
+      const baseSlug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+      const randomStr = Math.random().toString(36).substring(2, 6);
+      slug = `${baseSlug}-${randomStr}`;
+    }
+    
     const user = await prisma.user.create({
       data: {
         name,
         email,
         phone,
+        slug,
         password: passwordHash,
         role: finalRole,
       }

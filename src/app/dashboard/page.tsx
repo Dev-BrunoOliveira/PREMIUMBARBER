@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import ClientDashboard from "./ClientDashboard";
 import BarberDashboard from "./BarberDashboard";
 import LogoutButton from "./LogoutButton";
+import { prisma } from "@/lib/prisma";
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
@@ -12,12 +13,15 @@ export default async function Dashboard() {
     redirect("/login");
   }
 
-  const role = (session.user as any).role || "CLIENT";
+  const user = await prisma.user.findUnique({ where: { id: (session.user as any).id } });
+  if (!user) redirect("/login");
+
+  const role = user.role;
 
   return (
     <div style={{ padding: "24px", maxWidth: "900px", margin: "0 auto" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid var(--border)", paddingBottom: "16px" }}>
-        <h2>Olá, <span style={{ color: "var(--primary)" }}>{session.user.name || session.user.email?.split("@")[0]}</span></h2>
+        <h2>Olá, <span style={{ color: "var(--primary)" }}>{user.name || user.email?.split("@")[0]}</span></h2>
         
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
           <span className="label" style={{ backgroundColor: "var(--surface)", padding: "6px 16px", borderRadius: "16px", border: "1px solid var(--border)" }}>
@@ -27,7 +31,7 @@ export default async function Dashboard() {
         </div>
       </header>
 
-      {role === "BARBER" ? <BarberDashboard /> : <ClientDashboard />}
+      {role === "BARBER" ? <BarberDashboard barber={user} /> : <ClientDashboard user={user} />}
     </div>
   );
 }

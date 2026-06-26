@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const { format, addDays } = require('date-fns');
 
 async function main() {
-    console.log('Iniciando injeção de horários no banco...');
+    console.log('Iniciando injeção no Supabase...');
     let barber = await prisma.user.findFirst({ where: { role: 'BARBER' } });
     
     if (!barber) {
@@ -11,7 +11,8 @@ async function main() {
             data: {
                 name: 'Barbeiro Premium (Mock)',
                 email: 'barber@premium.com',
-                role: 'BARBER'
+                role: 'BARBER',
+                slug: 'barbeiro-premium'
             }
         });
         console.log('✅ Barbeiro criado com sucesso!');
@@ -40,7 +41,7 @@ async function main() {
         }
     }
     
-    console.log('✅ Horários para os próximos 15 dias foram injetados perfeitamente!');
+    console.log('✅ Horários para os próximos 15 dias foram injetados perfeitamente no Supabase!');
 }
 
 main().catch(e => console.error(e)).finally(() => prisma.$disconnect());

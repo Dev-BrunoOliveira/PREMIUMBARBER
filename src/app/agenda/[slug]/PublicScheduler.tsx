@@ -55,6 +55,7 @@ export default function PublicScheduler({ barberId, barberName }: { barberId: st
         setSelectedTime("");
         setTimeout(() => {
           setSuccess(false);
+          router.refresh();
           router.push("/dashboard"); // Redirects client to their dashboard to see the appointment
         }, 3000);
       } else {

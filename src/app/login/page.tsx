@@ -37,8 +37,7 @@ function LoginContent() {
       if (res?.error) {
         alert("E-mail ou senha incorretos");
       } else {
-        const redirectUrl = role === "BARBER" ? "/dashboard" : "/appointments";
-        router.push(redirectUrl);
+        router.push("/dashboard");
       }
     } else {
       // Criar Conta passando o Role correto
@@ -50,9 +49,7 @@ function LoginContent() {
       const data = await res.json();
 
       if (res.ok) {
-        const redirectUrl = role === "BARBER" ? "/dashboard" : "/appointments";
-        await signIn("credentials", { email, password, redirect: false });
-        router.push(redirectUrl);
+        await signIn('credentials', { email, password, callbackUrl: '/dashboard' });
       } else {
         alert(data.error || "Erro ao criar conta");
       }

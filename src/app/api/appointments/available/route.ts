@@ -19,7 +19,13 @@ export async function GET(req: Request) {
       orderBy: { time: "asc" },
     });
 
-    const dbTimes = availableTimesFromDB.map((t) => t.time);
+    let dbTimes = availableTimesFromDB.map((t) => t.time);
+
+    // [MODIFICAÇÃO DE DEMONSTRAÇÃO]
+    // Injeta horários padrão caso o barbeiro não tenha configurado nenhum na tabela AvailableTime
+    if (dbTimes.length === 0) {
+      dbTimes = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+    }
 
     // Buscar agendamentos confirmados para esta data
     const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);

@@ -1,6 +1,7 @@
 import { Users, Phone, Link as LinkIcon } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import CopyLinkButton from "./CopyLinkButton";
+import PublicScheduler from "@/app/agenda/[slug]/PublicScheduler";
 
 export default async function BarberDashboard({ barber }: { barber: any }) {
   const todayStart = new Date();
@@ -37,6 +38,19 @@ export default async function BarberDashboard({ barber }: { barber: any }) {
           </code>
         </div>
         <CopyLinkButton link={uniqueLink} />
+      </div>
+
+      {/* Calendário do Barbeiro (Para bloqueio de horários ou visualização) */}
+      <div className="card animate-fade-in" style={{ padding: "0", overflow: "hidden" }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--border)", backgroundColor: "rgba(0,0,0,0.2)" }}>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "1.2rem" }}>
+            <span style={{ color: "var(--text-main)" }}>Sua</span> <span style={{ color: "var(--primary)" }}>Agenda</span>
+          </h3>
+          <p className="label" style={{ marginTop: "4px", fontSize: "0.9rem" }}>Selecione um horário para bloqueá-lo (agendar para si mesmo) ou visualize os dias.</p>
+        </div>
+        <div style={{ padding: "24px" }}>
+          <PublicScheduler barberId={barber.id} barberName={barber.name || 'Profissional'} />
+        </div>
       </div>
 
       <div className="card animate-fade-in">

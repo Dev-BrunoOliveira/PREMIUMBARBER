@@ -10,6 +10,18 @@
   --error: #cf6679;
 }
 
+[data-theme="light"] {
+  --background: #f8f9fa;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f5;
+  --primary: #c59b27;
+  --primary-hover: #b5952f;
+  --text-main: #212529;
+  --text-muted: #6c757d;
+  --border: #dee2e6;
+  --error: #d32f2f;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;

@@ -127,7 +127,7 @@ export default function PublicScheduler({ barberId, barberName }: { barberId: st
             key={day.toString()} 
             onClick={() => !isPast && isCurrentMonth && setSelectedDate(cloneDay)}
             style={{
-              padding: "12px",
+              padding: "8px 4px",
               textAlign: "center",
               cursor: isPast || !isCurrentMonth ? "default" : "pointer",
               backgroundColor: isSelected ? "var(--primary)" : "transparent",

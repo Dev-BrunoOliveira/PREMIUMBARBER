@@ -56,7 +56,7 @@ export default function PublicScheduler({ barberId, barberName }: { barberId: st
         setTimeout(() => {
           setSuccess(false);
           router.refresh();
-          router.push("/dashboard"); // Redirects client to their dashboard to see the appointment
+          router.push("/dashboard");
         }, 3000);
       } else {
         alert(data.error || "Erro ao agendar.");

@@ -17,21 +17,63 @@ export default async function Dashboard() {
   if (!user) redirect("/login");
 
   const role = user.role;
+  const isBarber = role === "BARBER";
 
   return (
-    <div style={{ padding: "24px", maxWidth: "900px", margin: "0 auto" }}>
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", borderBottom: "1px solid var(--border)", paddingBottom: "16px" }}>
-        <h2>Olá, <span style={{ color: "var(--primary)" }}>{user.name || user.email?.split("@")[0]}</span></h2>
-        
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span className="label" style={{ backgroundColor: "var(--surface)", padding: "6px 16px", borderRadius: "16px", border: "1px solid var(--border)" }}>
-            {role === "BARBER" ? "Painel do Barbeiro" : "Painel do Cliente"}
-          </span>
-          <LogoutButton />
-        </div>
-      </header>
+    <div
+      data-role={isBarber ? "BARBER" : "CLIENT"}
+      className={isBarber ? "barber-theme" : ""}
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "var(--background)",
+        color: "var(--text-main)",
+        padding: "24px 16px",
+        transition: "all 0.3s ease",
+      }}
+    >
+      <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "32px",
+            borderBottom: "1px solid var(--border)",
+            paddingBottom: "16px",
+            flexWrap: "wrap",
+            gap: "12px",
+          }}
+        >
+          <div>
+            <h2 style={{ fontSize: "1.6rem", fontWeight: "800" }}>
+              Olá, <span style={{ color: "var(--primary)" }}>{user.name || user.email?.split("@")[0]}</span>
+            </h2>
+            <p className="label" style={{ textTransform: "none", marginTop: "2px" }}>
+              {isBarber ? "🟣 Você está no Painel de Gerenciamento do Barbeiro" : "🔴 Área do Cliente"}
+            </p>
+          </div>
 
-      {role === "BARBER" ? <BarberDashboard barber={user} /> : <ClientDashboard user={user} />}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <span
+              style={{
+                backgroundColor: isBarber ? "rgba(157, 78, 223, 0.15)" : "rgba(229, 9, 20, 0.15)",
+                color: "var(--primary)",
+                padding: "8px 18px",
+                borderRadius: "20px",
+                border: "1px solid var(--primary)",
+                fontWeight: "700",
+                fontSize: "0.85rem",
+                textTransform: "uppercase",
+              }}
+            >
+              {isBarber ? "🟣 Painel do Barbeiro" : "🔴 Área do Cliente"}
+            </span>
+            <LogoutButton />
+          </div>
+        </header>
+
+        {isBarber ? <BarberDashboard barber={user} /> : <ClientDashboard user={user} />}
+      </div>
     </div>
   );
 }

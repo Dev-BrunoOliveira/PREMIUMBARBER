@@ -13,8 +13,11 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialRole = searchParams.get("role") === "BARBER" ? "BARBER" : "CLIENT";
+  // Padrão: PRIORIZAR O LOGIN DO BARBEIRO
+  const initialRole = searchParams.get("role") === "CLIENT" ? "CLIENT" : "BARBER";
   const [role, setRole] = useState<"CLIENT" | "BARBER">(initialRole);
+
+  const callbackUrl = searchParams.get("callbackUrl") || (role === "BARBER" ? "/dashboard" : "/agenda/barbeiro-premium");
 
   const isBarber = role === "BARBER";
 
@@ -37,7 +40,7 @@ function LoginContent() {
       if (res?.error) {
         alert("E-mail ou senha incorretos");
       } else {
-        router.push("/dashboard");
+        router.push(callbackUrl);
       }
     } else {
       const res = await fetch("/api/auth/register", {
@@ -48,7 +51,7 @@ function LoginContent() {
       const data = await res.json();
 
       if (res.ok) {
-        await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
+        await signIn("credentials", { email, password, callbackUrl });
       } else {
         alert(data.error || "Erro ao criar conta");
       }
@@ -72,47 +75,41 @@ function LoginContent() {
   };
 
   return (
-    <div className={styles.container} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+    <div
+      className={styles.container}
+      data-role={isBarber ? "BARBER" : "CLIENT"}
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+        backgroundColor: isBarber ? "#0b0813" : "#09090b",
+        transition: "all 0.3s ease",
+      }}
+    >
       <div
         className={`card animate-fade-in ${styles.loginCard}`}
-        style={{ width: "100%", maxWidth: "460px", padding: "32px 24px" }}
+        style={{
+          width: "100%",
+          maxWidth: "440px",
+          padding: "32px 24px",
+          backgroundColor: isBarber ? "#140e22" : "#121216",
+          borderColor: isBarber ? "#2e204a" : "#272730",
+        }}
       >
-        {/* Banner de Rota do Cliente */}
-        <div style={{ backgroundColor: "rgba(212, 175, 55, 0.08)", border: "1px solid var(--primary)", borderRadius: "12px", padding: "12px", marginBottom: "24px", textAlign: "center" }}>
-          <p className="label" style={{ color: "var(--primary)", marginBottom: "8px" }}>É um Cliente querendo agendar?</p>
-          <Link href="/agendar" className="btn-primary" style={{ width: "100%", padding: "10px 16px", fontSize: "0.9rem" }}>
-            <Calendar size={18} /> Ir para Agendamento Direto
-          </Link>
-        </div>
-
-        {/* Seleção de Perfil */}
+        {/* Seleção de Perfil - BARBEIRO em Destaque Inicial */}
         <div
           style={{
             display: "flex",
             gap: "6px",
             marginBottom: "24px",
-            backgroundColor: "var(--background)",
+            backgroundColor: "rgba(0,0,0,0.4)",
             padding: "4px",
             borderRadius: "10px",
             border: "1px solid var(--border)",
           }}
         >
-          <button
-            type="button"
-            onClick={() => setRole("CLIENT")}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              fontWeight: "700",
-              fontSize: "0.9rem",
-              backgroundColor: role === "CLIENT" ? "var(--primary)" : "transparent",
-              color: role === "CLIENT" ? "#000" : "var(--text-muted)",
-              transition: "all 0.2s",
-            }}
-          >
-            Cliente
-          </button>
           <button
             type="button"
             onClick={() => setRole("BARBER")}
@@ -122,32 +119,52 @@ function LoginContent() {
               borderRadius: "8px",
               fontWeight: "700",
               fontSize: "0.9rem",
-              backgroundColor: role === "BARBER" ? "var(--primary)" : "transparent",
-              color: role === "BARBER" ? "#000" : "var(--text-muted)",
+              backgroundColor: role === "BARBER" ? "#9d4edf" : "transparent",
+              color: role === "BARBER" ? "#fff" : "var(--text-muted)",
               transition: "all 0.2s",
             }}
           >
-            Barbeiro / Admin
+            🟣 Sou Barbeiro
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("CLIENT")}
+            style={{
+              flex: 1,
+              padding: "10px",
+              borderRadius: "8px",
+              fontWeight: "700",
+              fontSize: "0.9rem",
+              backgroundColor: role === "CLIENT" ? "#e50914" : "transparent",
+              color: role === "CLIENT" ? "#fff" : "var(--text-muted)",
+              transition: "all 0.2s",
+            }}
+          >
+            🔴 Sou Cliente
           </button>
         </div>
 
         <div className={styles.header} style={{ marginBottom: "20px", textAlign: "center" }}>
           <h1 style={{ fontSize: "1.8rem", fontWeight: "800" }}>
-            Premium<span style={{ color: "var(--primary)" }}>Barber</span>
+            Premium<span style={{ color: isBarber ? "#9d4edf" : "#e50914" }}>Barber</span>
           </h1>
           <p className="label" style={{ textTransform: "none", marginTop: "4px" }}>
-            {isLogin ? "Acesse seu painel com e-mail e senha" : "Crie sua conta profissional"}
+            {isBarber
+              ? "Painel do Profissional - Faça login para gerenciar sua agenda"
+              : isLogin
+              ? "Entre para agendar seu horário"
+              : "Crie sua conta de cliente"}
           </p>
         </div>
 
         {/* Botão de Atalho Barbeiro Demo */}
-        {role === "BARBER" && isLogin && (
+        {isBarber && isLogin && (
           <div style={{ marginBottom: "20px" }}>
             <button
               type="button"
               onClick={handleDemoBarber}
               className="btn-secondary"
-              style={{ width: "100%", borderColor: "var(--primary)", color: "var(--primary)" }}
+              style={{ width: "100%", borderColor: "#9d4edf", color: "#9d4edf" }}
             >
               <ShieldCheck size={18} /> Entrar como Barbeiro Demo
             </button>
@@ -163,12 +180,12 @@ function LoginContent() {
                   name="name"
                   type="text"
                   className="input-field"
-                  placeholder={isBarber ? "Nome do Barbeiro" : "Seu nome"}
+                  placeholder={isBarber ? "Nome do Barbeiro" : "Seu nome completo"}
                   required={!isLogin}
                 />
               </div>
               <div>
-                <label className="label">WhatsApp</label>
+                <label className="label">WhatsApp (com DDD)</label>
                 <input
                   name="phone"
                   type="tel"
@@ -203,7 +220,13 @@ function LoginContent() {
           <button
             type="submit"
             className="btn-primary"
-            style={{ width: "100%", marginTop: "12px" }}
+            style={{
+              width: "100%",
+              marginTop: "12px",
+              background: isBarber
+                ? "linear-gradient(135deg, #9d4edf 0%, #7b2cbf 100%)"
+                : "linear-gradient(135deg, #e50914 0%, #b20710 100%)",
+            }}
             disabled={loading}
           >
             {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}

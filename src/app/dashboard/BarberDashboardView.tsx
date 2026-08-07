@@ -13,8 +13,16 @@ import {
   Calendar,
   MessageCircle,
   ExternalLink,
+  Clock,
+  DollarSign,
+  Settings,
+  Bell,
+  Save,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import CopyLinkButton from "./CopyLinkButton";
+import { format, addDays } from "date-fns";
 
 interface BarberDashboardProps {
   barber: any;
@@ -29,7 +37,19 @@ export default function BarberDashboardView({
 }: BarberDashboardProps) {
   const [appointments, setAppointments] = useState<any[]>(initialAppointments);
   const [services, setServices] = useState<any[]>(initialServices);
-  const [activeTab, setActiveTab] = useState<"appointments" | "services">("appointments");
+  const [activeTab, setActiveTab] = useState<"appointments" | "services" | "hours" | "profile">("appointments");
+
+  // Dados do Barbeiro
+  const [barberName, setBarberName] = useState(barber.name || "");
+  const [barberPhone, setBarberPhone] = useState(barber.phone || "");
+  const [barberSlug, setBarberSlug] = useState(barber.slug || "");
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  // Gestão de Horários
+  const [selectedDateStr, setSelectedDateStr] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [configuredTimes, setConfiguredTimes] = useState<string[]>([]);
+  const [loadingTimes, setLoadingTimes] = useState(false);
+  const [newTimeInput, setNewTimeInput] = useState("");
 
   // Formulário de Novo Serviço
   const [newServiceName, setNewServiceName] = useState("");
@@ -38,9 +58,52 @@ export default function BarberDashboardView({
   const [newServiceDesc, setNewServiceDesc] = useState("");
   const [loadingService, setLoadingService] = useState(false);
 
-  const slug = barber.slug || barber.id;
+  const slug = barberSlug || barber.id;
   const uniqueLink = `http://localhost:3000/agenda/${slug}`;
-  const publicBookingLink = `http://localhost:3000/agendar`;
+
+  // Buscar Horários configurados para a data selecionada
+  useEffect(() => {
+    if (activeTab === "hours") {
+      setLoadingTimes(true);
+      fetch(`/api/appointments/available?date=${selectedDateStr}&barberId=${barber.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.configuredTimes) setConfiguredTimes(data.configuredTimes);
+        })
+        .finally(() => setLoadingTimes(false));
+    }
+  }, [selectedDateStr, activeTab, barber.id]);
+
+  // Alternar Horário (Adicionar / Remover)
+  const handleToggleTime = async (time: string, isConfigured: boolean) => {
+    const action = isConfigured ? "REMOVE" : "ADD";
+    try {
+      const res = await fetch("/api/appointments/available/manage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date: selectedDateStr, time, action }),
+      });
+
+      if (res.ok) {
+        if (isConfigured) {
+          setConfiguredTimes((prev) => prev.filter((t) => t !== time));
+        } else {
+          setConfiguredTimes((prev) => [...prev, time].sort());
+        }
+      }
+    } catch (err) {
+      alert("Erro ao gerenciar horário");
+    }
+  };
+
+  // Adicionar novo horário personalizado
+  const handleAddCustomTime = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTimeInput) return;
+
+    await handleToggleTime(newTimeInput, false);
+    setNewTimeInput("");
+  };
 
   // Atualizar Status do Agendamento
   const handleUpdateStatus = async (id: string, newStatus: string) => {
@@ -113,94 +176,159 @@ export default function BarberDashboardView({
     }
   };
 
+  // Salvar Perfil
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoadingProfile(true);
+
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: barberName,
+          phone: barberPhone,
+          slug: barberSlug,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Perfil atualizado com sucesso!");
+      } else {
+        alert(data.error || "Erro ao atualizar perfil.");
+      }
+    } catch (err) {
+      alert("Erro de conexão.");
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  // Métricas
   const pendingCount = appointments.filter((a) => a.status === "PENDING").length;
   const confirmedCount = appointments.filter((a) => a.status === "CONFIRMED").length;
+  const completedAppointments = appointments.filter((a) => a.status === "COMPLETED" || a.status === "CONFIRMED");
+  const totalRevenue = completedAppointments.reduce((acc, a) => acc + (a.service?.price || 0), 0);
+
+  const defaultTimeList = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-      {/* Cards de Métricas */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
-        <div className="card" style={{ padding: "20px" }}>
-          <span className="label">Total de Agendamentos</span>
-          <h2 style={{ fontSize: "2rem", color: "var(--primary)", marginTop: "4px" }}>
-            {appointments.length}
-          </h2>
-        </div>
-        <div className="card" style={{ padding: "20px" }}>
-          <span className="label">Aguardando Confirmação</span>
-          <h2 style={{ fontSize: "2rem", color: "var(--warning)", marginTop: "4px" }}>
-            {pendingCount}
-          </h2>
-        </div>
-        <div className="card" style={{ padding: "20px" }}>
-          <span className="label">Confirmados</span>
-          <h2 style={{ fontSize: "2rem", color: "var(--success)", marginTop: "4px" }}>
-            {confirmedCount}
-          </h2>
-        </div>
-      </div>
-
-      {/* Link de Agendamento do Barbeiro */}
+      {/* 📲 SEU LINK PARA A BIO DO INSTAGRAM (EM DESTAQUE NO TOPO) */}
       <div
         className="card animate-fade-in"
         style={{
-          background: "linear-gradient(135deg, var(--surface) 0%, rgba(212, 175, 55, 0.08) 100%)",
-          border: "1px solid rgba(212, 175, 55, 0.4)",
+          background: "linear-gradient(135deg, rgba(157, 78, 223, 0.2) 0%, var(--surface) 100%)",
+          border: "2px solid #9d4edf",
+          boxShadow: "0 8px 32px rgba(157, 78, 223, 0.25)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
           <div>
-            <h3 style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--primary)", marginBottom: "6px" }}>
-              <LinkIcon size={20} /> Seu Link de Agendamento Direto
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+              <span style={{ backgroundColor: "#9d4edf", color: "#fff", padding: "4px 10px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "800", textTransform: "uppercase" }}>
+                📲 Seu Link da Bio
+              </span>
+            </div>
+            <h3 style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--primary)", fontSize: "1.3rem", marginBottom: "6px" }}>
+              <LinkIcon size={22} /> Copie e Cole na Bio do seu Instagram
             </h3>
-            <p className="label" style={{ textTransform: "none" }}>
-              Envie aos seus clientes pelo WhatsApp ou adicione na Bio do seu Instagram!
+            <p className="label" style={{ textTransform: "none", fontSize: "0.95rem" }}>
+              Através deste link, seu cliente acessa a sua página exclusiva, cria a conta ou faz login e é direcionado direto para agendar com você!
             </p>
             <code
               style={{
                 display: "inline-block",
                 marginTop: "12px",
-                padding: "10px 16px",
-                background: "rgba(0,0,0,0.5)",
-                borderRadius: "8px",
-                color: "var(--primary)",
-                fontSize: "1rem",
-                border: "1px solid var(--border)",
+                padding: "12px 18px",
+                background: "rgba(0,0,0,0.6)",
+                borderRadius: "10px",
+                color: "#9d4edf",
+                fontSize: "1.1rem",
+                fontWeight: "700",
+                border: "1px solid #2e204a",
               }}
             >
               {uniqueLink}
             </code>
           </div>
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             <CopyLinkButton link={uniqueLink} />
             <a
               href={uniqueLink}
               target="_blank"
               rel="noreferrer"
               className="btn-secondary"
-              style={{ padding: "10px 16px" }}
+              style={{ padding: "12px 18px" }}
             >
-              Testar Rota <ExternalLink size={16} />
+              Testar Rota do Cliente <ExternalLink size={16} />
             </a>
           </div>
         </div>
       </div>
 
+      {/* Cards de Métricas */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
+        <div className="card" style={{ padding: "20px" }}>
+          <span className="label">Total Agendamentos</span>
+          <h2 style={{ fontSize: "2rem", color: "var(--primary)", marginTop: "4px" }}>
+            {appointments.length}
+          </h2>
+        </div>
+        <div className="card" style={{ padding: "20px" }}>
+          <span className="label">Pendentes de Aprovação</span>
+          <h2 style={{ fontSize: "2rem", color: "var(--warning)", marginTop: "4px" }}>
+            {pendingCount}
+          </h2>
+        </div>
+        <div className="card" style={{ padding: "20px" }}>
+          <span className="label">Horários Confirmados</span>
+          <h2 style={{ fontSize: "2rem", color: "var(--success)", marginTop: "4px" }}>
+            {confirmedCount}
+          </h2>
+        </div>
+        <div className="card" style={{ padding: "20px" }}>
+          <span className="label">Faturamento Estimado</span>
+          <h2 style={{ fontSize: "1.8rem", color: "var(--primary)", marginTop: "4px" }}>
+            R$ {totalRevenue.toFixed(2).replace(".", ",")}
+          </h2>
+        </div>
+      </div>
+
+
       {/* Navegação por Abas */}
-      <div style={{ display: "flex", gap: "12px", borderBottom: "1px solid var(--border)", paddingBottom: "12px" }}>
+      <div style={{ display: "flex", gap: "10px", borderBottom: "1px solid var(--border)", paddingBottom: "12px", flexWrap: "wrap" }}>
         <button
           className={activeTab === "appointments" ? "btn-primary" : "btn-secondary"}
           onClick={() => setActiveTab("appointments")}
-          style={{ padding: "10px 20px" }}
+          style={{ padding: "10px 18px", fontSize: "0.9rem" }}
         >
-          <Calendar size={18} /> Agendamentos ({appointments.length})
+          <Calendar size={16} /> Agendamentos ({appointments.length})
         </button>
+
         <button
           className={activeTab === "services" ? "btn-primary" : "btn-secondary"}
           onClick={() => setActiveTab("services")}
-          style={{ padding: "10px 20px" }}
+          style={{ padding: "10px 18px", fontSize: "0.9rem" }}
         >
-          <Scissors size={18} /> Gerenciar Serviços & Preços ({services.length})
+          <Scissors size={16} /> Serviços & Preços ({services.length})
+        </button>
+
+        <button
+          className={activeTab === "hours" ? "btn-primary" : "btn-secondary"}
+          onClick={() => setActiveTab("hours")}
+          style={{ padding: "10px 18px", fontSize: "0.9rem" }}
+        >
+          <Clock size={16} /> Gerenciador de Horários
+        </button>
+
+        <button
+          className={activeTab === "profile" ? "btn-primary" : "btn-secondary"}
+          onClick={() => setActiveTab("profile")}
+          style={{ padding: "10px 18px", fontSize: "0.9rem" }}
+        >
+          <Settings size={16} /> Meu Perfil
         </button>
       </div>
 
@@ -284,31 +412,31 @@ export default function BarberDashboardView({
                         </div>
                       </div>
 
-                      {/* Botão de WhatsApp Rápido */}
+                      {/* Botão WhatsApp Direct */}
                       {cleanPhone && (
                         <a
                           href={`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(
-                            `Olá ${clientDisplayName}, sou o barbeiro ${barber.name} referente ao seu agendamento.`
+                            `Olá ${clientDisplayName}, sou o barbeiro ${barberName} referente ao seu agendamento no dia ${dateStr} às ${timeStr}.`
                           )}`}
                           target="_blank"
                           rel="noreferrer"
                           className="btn-secondary"
                           style={{ padding: "8px 14px", fontSize: "0.85rem", color: "#25D366", borderColor: "#25D366" }}
                         >
-                          <MessageCircle size={16} /> WhatsApp
+                          <MessageCircle size={16} /> Enviar Mensagem Zap
                         </a>
                       )}
                     </div>
 
-                    {/* Botões de Ação do Barbeiro */}
-                    <div style={{ display: "flex", gap: "10px", marginTop: "8px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                    {/* Ações do Barbeiro */}
+                    <div style={{ display: "flex", gap: "10px", marginTop: "8px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.05)", flexWrap: "wrap" }}>
                       {app.status !== "CONFIRMED" && app.status !== "COMPLETED" && (
                         <button
                           className="btn-primary"
                           onClick={() => handleUpdateStatus(app.id, "CONFIRMED")}
                           style={{ padding: "8px 16px", fontSize: "0.85rem" }}
                         >
-                          <CheckCircle size={16} /> Confirmar Horário
+                          <CheckCircle size={16} /> Confirmar
                         </button>
                       )}
 
@@ -318,7 +446,7 @@ export default function BarberDashboardView({
                           onClick={() => handleUpdateStatus(app.id, "COMPLETED")}
                           style={{ padding: "8px 16px", fontSize: "0.85rem", color: "var(--success)" }}
                         >
-                          <CheckCircle size={16} /> Marcar como Atendido
+                          <CheckCircle size={16} /> Finalizar Atendimento
                         </button>
                       )}
 
@@ -328,7 +456,7 @@ export default function BarberDashboardView({
                           onClick={() => handleUpdateStatus(app.id, "CANCELED")}
                           style={{ padding: "8px 16px", fontSize: "0.85rem", color: "var(--error)" }}
                         >
-                          <XCircle size={16} /> Cancelar
+                          <XCircle size={16} /> Cancelar Horário
                         </button>
                       )}
                     </div>
@@ -343,7 +471,6 @@ export default function BarberDashboardView({
       {/* ABA 2: GERENCIAR SERVIÇOS & PREÇOS */}
       {activeTab === "services" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }} className="animate-fade-in">
-          {/* Formulário de Adicionar Serviço */}
           <div className="card">
             <h3 style={{ marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
               <Plus color="var(--primary)" size={20} /> Cadastrar Novo Serviço
@@ -404,10 +531,9 @@ export default function BarberDashboardView({
             </form>
           </div>
 
-          {/* Lista de Serviços Cadastrados */}
           <div className="card">
             <h3 style={{ marginBottom: "18px", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Scissors color="var(--primary)" size={20} /> Serviços Oferecidos
+              <Scissors color="var(--primary)" size={20} /> Catálogo de Serviços
             </h3>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
@@ -453,6 +579,135 @@ export default function BarberDashboardView({
               ))}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ABA 3: GERENCIADOR DE HORÁRIOS OPERACIONAIS */}
+      {activeTab === "hours" && (
+        <div className="card animate-fade-in">
+          <h3 style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Clock color="var(--primary)" size={20} />
+            Gerenciador de Horários Operacionais
+          </h3>
+          <p className="label" style={{ textTransform: "none", marginBottom: "24px" }}>
+            Selecione uma data para abrir ou bloquear horários de atendimento aos clientes.
+          </p>
+
+          <div style={{ marginBottom: "24px", maxWidth: "300px" }}>
+            <label className="label">Selecione a Data:</label>
+            <input
+              type="date"
+              className="input-field"
+              value={selectedDateStr}
+              onChange={(e) => setSelectedDateStr(e.target.value)}
+            />
+          </div>
+
+          <div style={{ marginBottom: "24px" }}>
+            <p className="label" style={{ marginBottom: "12px" }}>Grade de Horários para {selectedDateStr}:</p>
+            {loadingTimes ? (
+              <p className="label">Carregando horários...</p>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: "10px" }}>
+                {defaultTimeList.map((time) => {
+                  const isConfigured = configuredTimes.includes(time);
+                  return (
+                    <button
+                      key={time}
+                      type="button"
+                      onClick={() => handleToggleTime(time, isConfigured)}
+                      style={{
+                        padding: "12px 8px",
+                        borderRadius: "10px",
+                        border: `1.5px solid ${isConfigured ? "var(--primary)" : "var(--border)"}`,
+                        backgroundColor: isConfigured ? "rgba(212, 175, 55, 0.15)" : "var(--background)",
+                        color: isConfigured ? "var(--primary)" : "var(--text-muted)",
+                        fontWeight: "600",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {isConfigured ? <Unlock size={14} /> : <Lock size={14} />}
+                      {time}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Form de Horário Customizado */}
+          <form onSubmit={handleAddCustomTime} style={{ display: "flex", gap: "12px", alignItems: "flex-end", maxWidth: "400px" }}>
+            <div style={{ flex: 1 }}>
+              <label className="label">Adicionar Horário Específico (ex: 20:30)</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="20:30"
+                value={newTimeInput}
+                onChange={(e) => setNewTimeInput(e.target.value)}
+              />
+            </div>
+            <button type="submit" className="btn-secondary" style={{ padding: "14px" }}>
+              <Plus size={18} /> Adicionar
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ABA 4: MEU PERFIL */}
+      {activeTab === "profile" && (
+        <div className="card animate-fade-in">
+          <h3 style={{ marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Settings color="var(--primary)" size={20} />
+            Configurações do Perfil e Barbearia
+          </h3>
+
+          <form onSubmit={handleSaveProfile} style={{ display: "flex", flexDirection: "column", gap: "18px", maxWidth: "500px" }}>
+            <div>
+              <label className="label">Nome Profissional / Nome da Barbearia *</label>
+              <input
+                type="text"
+                className="input-field"
+                value={barberName}
+                onChange={(e) => setBarberName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="label">WhatsApp para Notificações *</label>
+              <input
+                type="tel"
+                className="input-field"
+                placeholder="(11) 99999-9999"
+                value={barberPhone}
+                onChange={(e) => setBarberPhone(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="label">Link Personalizado (Slug da Bio)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span className="label" style={{ fontSize: "0.85rem" }}>/agenda/</span>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="barbeiro-premium"
+                  value={barberSlug}
+                  onChange={(e) => setBarberSlug(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="btn-primary" disabled={loadingProfile} style={{ marginTop: "12px" }}>
+              <Save size={18} /> {loadingProfile ? "Salvando..." : "Salvar Alterações"}
+            </button>
+          </form>
         </div>
       )}
     </div>

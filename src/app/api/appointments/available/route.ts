@@ -19,8 +19,9 @@ export async function GET(req: Request) {
 
     let dbTimes = availableTimesFromDB.map((t) => t.time);
 
+    // Se ainda não houver nenhum horário específico cadastrado para esta data, usa a grade padrão
     if (dbTimes.length === 0) {
-      dbTimes = ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
+      dbTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
     }
 
     const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
@@ -30,18 +31,20 @@ export async function GET(req: Request) {
       where: {
         barberId,
         date: { gte: startOfDay, lte: endOfDay },
-        status: "CONFIRMED"
+        status: { in: ["CONFIRMED", "PENDING"] }
       }
     });
 
     const bookedTimes = appointments.map((app) => {
+      if (app.time) return app.time;
       const hours = app.date.getUTCHours().toString().padStart(2, "0");
-      return `${hours}:00`;
+      const minutes = app.date.getUTCMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
     });
 
     const availableTimes = dbTimes.filter((t) => !bookedTimes.includes(t));
 
-    return NextResponse.json({ availableTimes });
+    return NextResponse.json({ availableTimes, configuredTimes: dbTimes, bookedTimes });
   } catch (error) {
     return NextResponse.json({ error: "Erro ao buscar horários" }, { status: 500 });
   }

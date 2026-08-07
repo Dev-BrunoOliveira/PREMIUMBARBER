@@ -1,9 +1,10 @@
 "use client";
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, Calendar, ShieldCheck } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 function LoginContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -12,8 +13,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialRole =
-    searchParams.get("role") === "BARBER" ? "BARBER" : "CLIENT";
+  const initialRole = searchParams.get("role") === "BARBER" ? "BARBER" : "CLIENT";
   const [role, setRole] = useState<"CLIENT" | "BARBER">(initialRole);
 
   const isBarber = role === "BARBER";
@@ -40,7 +40,6 @@ function LoginContent() {
         router.push("/dashboard");
       }
     } else {
-      // Criar Conta passando o Role correto
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -49,7 +48,7 @@ function LoginContent() {
       const data = await res.json();
 
       if (res.ok) {
-        await signIn('credentials', { email, password, callbackUrl: '/dashboard' });
+        await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
       } else {
         alert(data.error || "Erro ao criar conta");
       }
@@ -57,21 +56,44 @@ function LoginContent() {
     setLoading(false);
   };
 
+  const handleDemoBarber = async () => {
+    setLoading(true);
+    const res = await signIn("credentials", {
+      email: "barber@premium.com",
+      password: "123456",
+      redirect: false,
+    });
+    if (!res?.error) {
+      router.push("/dashboard");
+    } else {
+      alert("Erro ao logar como barbeiro demo");
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
       <div
         className={`card animate-fade-in ${styles.loginCard}`}
-        style={{ paddingTop: "32px" }}
+        style={{ width: "100%", maxWidth: "460px", padding: "32px 24px" }}
       >
-        {/* BOTOES DE SELECAO DE PERFIL */}
+        {/* Banner de Rota do Cliente */}
+        <div style={{ backgroundColor: "rgba(212, 175, 55, 0.08)", border: "1px solid var(--primary)", borderRadius: "12px", padding: "12px", marginBottom: "24px", textAlign: "center" }}>
+          <p className="label" style={{ color: "var(--primary)", marginBottom: "8px" }}>É um Cliente querendo agendar?</p>
+          <Link href="/agendar" className="btn-primary" style={{ width: "100%", padding: "10px 16px", fontSize: "0.9rem" }}>
+            <Calendar size={18} /> Ir para Agendamento Direto
+          </Link>
+        </div>
+
+        {/* Seleção de Perfil */}
         <div
           style={{
             display: "flex",
-            gap: "8px",
-            marginBottom: "32px",
+            gap: "6px",
+            marginBottom: "24px",
             backgroundColor: "var(--background)",
-            padding: "6px",
-            borderRadius: "12px",
+            padding: "4px",
+            borderRadius: "10px",
             border: "1px solid var(--border)",
           }}
         >
@@ -80,143 +102,124 @@ function LoginContent() {
             onClick={() => setRole("CLIENT")}
             style={{
               flex: 1,
-              padding: "14px",
+              padding: "10px",
               borderRadius: "8px",
               fontWeight: "700",
-              transition: "all 0.2s",
-              backgroundColor:
-                role === "CLIENT" ? "var(--primary)" : "transparent",
+              fontSize: "0.9rem",
+              backgroundColor: role === "CLIENT" ? "var(--primary)" : "transparent",
               color: role === "CLIENT" ? "#000" : "var(--text-muted)",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "1rem",
+              transition: "all 0.2s",
             }}
           >
-            Sou Cliente
+            Cliente
           </button>
           <button
             type="button"
             onClick={() => setRole("BARBER")}
             style={{
               flex: 1,
-              padding: "14px",
+              padding: "10px",
               borderRadius: "8px",
               fontWeight: "700",
-              transition: "all 0.2s",
-              backgroundColor:
-                role === "BARBER" ? "var(--primary)" : "transparent",
+              fontSize: "0.9rem",
+              backgroundColor: role === "BARBER" ? "var(--primary)" : "transparent",
               color: role === "BARBER" ? "#000" : "var(--text-muted)",
-              border: "none",
-              cursor: "pointer",
-              fontSize: "1rem",
+              transition: "all 0.2s",
             }}
           >
-            Sou Profissional
+            Barbeiro / Admin
           </button>
         </div>
 
-        <div className={styles.header} style={{ marginBottom: "24px" }}>
-          <div className={styles.logo}>
-            <h1>
-              Premium<span>Barber</span>
-            </h1>
-          </div>
-          <p className="label">
-            {isLogin
-              ? "Faça login para continuar"
-              : "Crie sua conta para começar"}
+        <div className={styles.header} style={{ marginBottom: "20px", textAlign: "center" }}>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: "800" }}>
+            Premium<span style={{ color: "var(--primary)" }}>Barber</span>
+          </h1>
+          <p className="label" style={{ textTransform: "none", marginTop: "4px" }}>
+            {isLogin ? "Acesse seu painel com e-mail e senha" : "Crie sua conta profissional"}
           </p>
         </div>
 
-        <div className={styles.actions}>
-          <button
-            className="btn-secondary"
-            style={{ width: "100%" }}
-            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-            type="button"
-          >
-            {isLogin ? "Entrar com Google" : "Criar conta com Google"}
-          </button>
-
-          <div className={styles.divider}>
-            <span>ou com E-mail</span>
-          </div>
-
-          <form className={styles.form} onSubmit={handleSubmit}>
-            {!isLogin && (
-              <>
-                <div className="animate-fade-in">
-                  <label className="label">Nome Completo</label>
-                  <input
-                    name="name"
-                    type="text"
-                    className="input-field"
-                    placeholder={
-                      isBarber ? "Nome do Profissional" : "Seu nome completo"
-                    }
-                    required={!isLogin}
-                  />
-                </div>
-                <div className="animate-fade-in">
-                  <label className="label">Número do WhatsApp</label>
-                  <input
-                    name="phone"
-                    type="tel"
-                    className="input-field"
-                    placeholder="(11) 99999-9999"
-                    required={!isLogin}
-                  />
-                </div>
-              </>
-            )}
-            <div>
-              <label className="label">E-mail</label>
-              <input
-                name="email"
-                type="email"
-                className="input-field"
-                placeholder="seu@email.com"
-                required
-              />
-            </div>
-            <div>
-              <label className="label">Senha</label>
-              <input
-                name="password"
-                type="password"
-                className="input-field"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn-primary"
-              style={{
-                width: "100%",
-                marginTop: "16px",
-                backgroundColor:
-                  isBarber && !isLogin ? "#fff" : "var(--primary)",
-              }}
-              disabled={loading}
-            >
-              {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
-              {loading ? "Aguarde..." : isLogin ? "Fazer Login" : "Criar Conta"}
-            </button>
-          </form>
-
-          <div style={{ marginTop: "24px", textAlign: "center" }}>
+        {/* Botão de Atalho Barbeiro Demo */}
+        {role === "BARBER" && isLogin && (
+          <div style={{ marginBottom: "20px" }}>
             <button
               type="button"
-              className={styles.toggleBtn}
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={handleDemoBarber}
+              className="btn-secondary"
+              style={{ width: "100%", borderColor: "var(--primary)", color: "var(--primary)" }}
             >
-              {isLogin
-                ? "Ainda não tem conta? Criar Conta"
-                : "Já tem conta? Fazer Login"}
+              <ShieldCheck size={18} /> Entrar como Barbeiro Demo
             </button>
           </div>
+        )}
+
+        <form className={styles.form} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          {!isLogin && (
+            <>
+              <div>
+                <label className="label">Nome Completo</label>
+                <input
+                  name="name"
+                  type="text"
+                  className="input-field"
+                  placeholder={isBarber ? "Nome do Barbeiro" : "Seu nome"}
+                  required={!isLogin}
+                />
+              </div>
+              <div>
+                <label className="label">WhatsApp</label>
+                <input
+                  name="phone"
+                  type="tel"
+                  className="input-field"
+                  placeholder="(11) 99999-9999"
+                  required={!isLogin}
+                />
+              </div>
+            </>
+          )}
+          <div>
+            <label className="label">E-mail</label>
+            <input
+              name="email"
+              type="email"
+              className="input-field"
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+          <div>
+            <label className="label">Senha</label>
+            <input
+              name="password"
+              type="password"
+              className="input-field"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{ width: "100%", marginTop: "12px" }}
+            disabled={loading}
+          >
+            {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
+            {loading ? "Aguarde..." : isLogin ? "Entrar no Painel" : "Criar Conta"}
+          </button>
+        </form>
+
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <button
+            type="button"
+            className={styles.toggleBtn}
+            onClick={() => setIsLogin(!isLogin)}
+            style={{ color: "var(--text-muted)", fontSize: "0.9rem", textDecoration: "underline" }}
+          >
+            {isLogin ? "Ainda não tem conta? Criar Conta" : "Já tem conta? Fazer Login"}
+          </button>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -21,23 +21,44 @@ model User {
   appointments       Appointment[] @relation("ClientAppointments")
   barberAppointments Appointment[] @relation("BarberAppointments")
   availableTimes     AvailableTime[]
+  services           Service[]
   accounts           Account[]
   sessions           Session[]
 }
 
-model Appointment {
-  id        String   @id @default(cuid())
-  date      DateTime
-  status    String   @default("CONFIRMED")
-  
-  clientId  String
-  client    User     @relation("ClientAppointments", fields: [clientId], references: [id])
-  
-  barberId  String
-  barber    User     @relation("BarberAppointments", fields: [barberId], references: [id])
+model Service {
+  id          String        @id @default(cuid())
+  name        String
+  price       Float
+  duration    Int           @default(30)
+  description String?
+  barberId    String
+  barber      User          @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  createdAt   DateTime      @default(now())
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Appointment {
+  id          String   @id @default(cuid())
+  date        DateTime
+  time        String?
+  status      String   @default("PENDING") // PENDING, CONFIRMED, CANCELED, COMPLETED
+  
+  clientName  String?
+  clientPhone String?
+  clientEmail String?
+  
+  clientId    String?
+  client      User?    @relation("ClientAppointments", fields: [clientId], references: [id], onDelete: SetNull)
+  
+  barberId    String
+  barber      User     @relation("BarberAppointments", fields: [barberId], references: [id], onDelete: Cascade)
+
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model AvailableTime {

@@ -1,10 +1,9 @@
 "use client";
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { LogIn, UserPlus, Calendar, ShieldCheck } from "lucide-react";
+import { LogIn, UserPlus } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 function LoginContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,9 +16,12 @@ function LoginContent() {
   const initialRole = searchParams.get("role") === "CLIENT" ? "CLIENT" : "BARBER";
   const [role, setRole] = useState<"CLIENT" | "BARBER">(initialRole);
 
-  const callbackUrl = searchParams.get("callbackUrl") || (role === "BARBER" ? "/dashboard" : "/agenda/barbeiro-premium");
-
   const isBarber = role === "BARBER";
+
+  // Quando estiver em Barbeiro -> Vai DIRETO para o Painel do Barbeiro (/dashboard)
+  const targetRedirect = isBarber
+    ? "/dashboard"
+    : searchParams.get("callbackUrl") || "/agenda/barbeiro-premium";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,7 +42,7 @@ function LoginContent() {
       if (res?.error) {
         alert("E-mail ou senha incorretos");
       } else {
-        router.push(callbackUrl);
+        router.push(targetRedirect);
       }
     } else {
       const res = await fetch("/api/auth/register", {
@@ -51,25 +53,10 @@ function LoginContent() {
       const data = await res.json();
 
       if (res.ok) {
-        await signIn("credentials", { email, password, callbackUrl });
+        await signIn("credentials", { email, password, callbackUrl: targetRedirect });
       } else {
         alert(data.error || "Erro ao criar conta");
       }
-    }
-    setLoading(false);
-  };
-
-  const handleDemoBarber = async () => {
-    setLoading(true);
-    const res = await signIn("credentials", {
-      email: "barber@premium.com",
-      password: "123456",
-      redirect: false,
-    });
-    if (!res?.error) {
-      router.push("/dashboard");
-    } else {
-      alert("Erro ao logar como barbeiro demo");
     }
     setLoading(false);
   };
@@ -98,7 +85,7 @@ function LoginContent() {
           borderColor: isBarber ? "#2e204a" : "#272730",
         }}
       >
-        {/* Seleção de Perfil - BARBEIRO em Destaque Inicial */}
+        {/* Seleção de Perfil: PROFISSIONAL x CLIENTE */}
         <div
           style={{
             display: "flex",
@@ -115,7 +102,7 @@ function LoginContent() {
             onClick={() => setRole("BARBER")}
             style={{
               flex: 1,
-              padding: "10px",
+              padding: "12px",
               borderRadius: "8px",
               fontWeight: "700",
               fontSize: "0.9rem",
@@ -131,7 +118,7 @@ function LoginContent() {
             onClick={() => setRole("CLIENT")}
             style={{
               flex: 1,
-              padding: "10px",
+              padding: "12px",
               borderRadius: "8px",
               fontWeight: "700",
               fontSize: "0.9rem",
@@ -150,32 +137,18 @@ function LoginContent() {
           </h1>
           <p className="label" style={{ textTransform: "none", marginTop: "4px" }}>
             {isBarber
-              ? "Painel do Profissional - Faça login para gerenciar sua agenda"
+              ? "Painel do Barbeiro - Gerencie seus agendamentos e horários"
               : isLogin
-              ? "Entre para agendar seu horário"
-              : "Crie sua conta de cliente"}
+              ? "Área do Cliente - Faça login para visualizar e agendar"
+              : "Crie sua conta de cliente (Nome, WhatsApp, Email e Senha)"}
           </p>
         </div>
-
-        {/* Botão de Atalho Barbeiro Demo */}
-        {isBarber && isLogin && (
-          <div style={{ marginBottom: "20px" }}>
-            <button
-              type="button"
-              onClick={handleDemoBarber}
-              className="btn-secondary"
-              style={{ width: "100%", borderColor: "#9d4edf", color: "#9d4edf" }}
-            >
-              <ShieldCheck size={18} /> Entrar como Barbeiro Demo
-            </button>
-          </div>
-        )}
 
         <form className={styles.form} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {!isLogin && (
             <>
               <div>
-                <label className="label">Nome Completo</label>
+                <label className="label">Nome Completo *</label>
                 <input
                   name="name"
                   type="text"
@@ -185,7 +158,7 @@ function LoginContent() {
                 />
               </div>
               <div>
-                <label className="label">WhatsApp (com DDD)</label>
+                <label className="label">Número do Celular / WhatsApp (com DDD) *</label>
                 <input
                   name="phone"
                   type="tel"
@@ -197,7 +170,7 @@ function LoginContent() {
             </>
           )}
           <div>
-            <label className="label">E-mail</label>
+            <label className="label">E-mail *</label>
             <input
               name="email"
               type="email"
@@ -207,7 +180,7 @@ function LoginContent() {
             />
           </div>
           <div>
-            <label className="label">Senha</label>
+            <label className="label">Senha *</label>
             <input
               name="password"
               type="password"
@@ -230,7 +203,7 @@ function LoginContent() {
             disabled={loading}
           >
             {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
-            {loading ? "Aguarde..." : isLogin ? "Entrar no Painel" : "Criar Conta"}
+            {loading ? "Aguarde..." : isLogin ? (isBarber ? "Entrar no Painel do Barbeiro" : "Entrar como Cliente") : "Criar Conta"}
           </button>
         </form>
 

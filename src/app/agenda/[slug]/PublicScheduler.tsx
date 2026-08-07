@@ -10,8 +10,8 @@ import {
   User,
   Phone,
   Mail,
-  Sparkles,
   ArrowRight,
+  Lock,
 } from "lucide-react";
 import {
   format,
@@ -58,10 +58,12 @@ export default function PublicScheduler({
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [selectedTime, setSelectedTime] = useState("");
 
+  const [allTimeSlots, setAllTimeSlots] = useState<string[]>([]);
   const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [loadingTimes, setLoadingTimes] = useState(false);
 
-  // Formulário Obrigatorio do Cliente
+  // Formulário do Cliente
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientEmail, setClientEmail] = useState("");
@@ -71,12 +73,22 @@ export default function PublicScheduler({
 
   const today = startOfDay(new Date());
 
-  // 1. Carregar Serviços
+  // 1. Carregar Serviços do Barbeiro
   useEffect(() => {
     fetch(`/api/services?barberId=${barberId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.services) setServices(data.services);
+        if (data.services && data.services.length > 0) {
+          setServices(data.services);
+        } else {
+          // Fallback dos 4 serviços padrão do sistema
+          setServices([
+            { id: "s1", name: "Corte", price: 45, duration: 30, description: "Corte completo com acabamento de precisão." },
+            { id: "s2", name: "Corte + Barba", price: 75, duration: 50, description: "Combo especial com toalha quente e barba terapia." },
+            { id: "s3", name: "Apenas Barba", price: 35, duration: 30, description: "Modelagem de barba com navalha e hidratação." },
+            { id: "s4", name: "Limpar a Sobrancelha", price: 15, duration: 15, description: "Design e alinhamento masculino na navalha." },
+          ]);
+        }
       })
       .catch((err) => console.error("Erro ao carregar serviços:", err));
   }, [barberId]);
@@ -89,7 +101,7 @@ export default function PublicScheduler({
     }
   }, [session]);
 
-  // 3. Buscar horários disponíveis ao alterar a data
+  // 3. Buscar horários disponíveis e ocupados ao alterar a data
   useEffect(() => {
     if (!selectedDate) return;
     setLoadingTimes(true);
@@ -100,7 +112,14 @@ export default function PublicScheduler({
     fetch(`/api/appointments/available?date=${dateStr}&barberId=${barberId}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.availableTimes) setAvailableTimes(data.availableTimes);
+        const defaultList = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
+        const configured = data.configuredTimes && data.configuredTimes.length > 0 ? data.configuredTimes : defaultList;
+        const available = data.availableTimes || [];
+        const booked = data.bookedTimes || [];
+
+        setAllTimeSlots(configured);
+        setAvailableTimes(available);
+        setBookedTimes(booked);
       })
       .finally(() => setLoadingTimes(false));
   }, [selectedDate, barberId]);
@@ -131,7 +150,7 @@ export default function PublicScheduler({
           date: dateStr,
           time: selectedTime,
           barberId,
-          serviceId: selectedService.id,
+          serviceId: selectedService.id.startsWith("s") ? null : selectedService.id,
           clientName,
           clientPhone,
           clientEmail,
@@ -217,7 +236,7 @@ export default function PublicScheduler({
               textAlign: "center",
               cursor: isPast || !isCurrentMonth ? "default" : "pointer",
               backgroundColor: isSelected ? "var(--primary)" : "transparent",
-              color: isSelected ? "#000" : isPast || !isCurrentMonth ? "var(--text-muted)" : "var(--text-main)",
+              color: isSelected ? "#fff" : isPast || !isCurrentMonth ? "var(--text-muted)" : "var(--text-main)",
               borderRadius: "10px",
               fontWeight: isSelected ? "bold" : "normal",
               transition: "all 0.2s",
@@ -263,6 +282,7 @@ export default function PublicScheduler({
             justifyContent: "center",
             gap: "12px",
             marginBottom: "32px",
+            flexWrap: "wrap",
           }}
         >
           <div
@@ -282,7 +302,7 @@ export default function PublicScheduler({
                 height: "28px",
                 borderRadius: "50%",
                 backgroundColor: step === 1 ? "var(--primary)" : "var(--surface)",
-                color: step === 1 ? "#000" : "var(--text-main)",
+                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -293,7 +313,7 @@ export default function PublicScheduler({
             >
               1
             </span>
-            <span>Serviço</span>
+            <span>1. Selecionar Serviço</span>
           </div>
 
           <span style={{ color: "var(--border)" }}>—</span>
@@ -315,7 +335,7 @@ export default function PublicScheduler({
                 height: "28px",
                 borderRadius: "50%",
                 backgroundColor: step === 2 ? "var(--primary)" : "var(--surface)",
-                color: step === 2 ? "#000" : "var(--text-main)",
+                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -326,7 +346,7 @@ export default function PublicScheduler({
             >
               2
             </span>
-            <span>Data & Horário</span>
+            <span>2. Escolher Horário</span>
           </div>
 
           <span style={{ color: "var(--border)" }}>—</span>
@@ -348,7 +368,7 @@ export default function PublicScheduler({
                 height: "28px",
                 borderRadius: "50%",
                 backgroundColor: step === 3 ? "var(--primary)" : "var(--surface)",
-                color: step === 3 ? "#000" : "var(--text-main)",
+                color: "#fff",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -359,7 +379,7 @@ export default function PublicScheduler({
             >
               3
             </span>
-            <span>Seus Dados</span>
+            <span>3. Seus Dados</span>
           </div>
         </div>
       )}
@@ -382,7 +402,7 @@ export default function PublicScheduler({
             Selecione o Serviço Desejado
           </h3>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
             {services.map((s) => {
               const isSelected = selectedService?.id === s.id;
               return (
@@ -393,7 +413,7 @@ export default function PublicScheduler({
                   style={{
                     padding: "20px",
                     borderRadius: "14px",
-                    backgroundColor: isSelected ? "rgba(212, 175, 55, 0.08)" : "var(--background)",
+                    backgroundColor: isSelected ? "rgba(229, 9, 20, 0.15)" : "var(--background)",
                     border: `2px solid ${isSelected ? "var(--primary)" : "var(--border)"}`,
                     cursor: "pointer",
                     display: "flex",
@@ -409,7 +429,7 @@ export default function PublicScheduler({
                         top: "16px",
                         right: "16px",
                         backgroundColor: "var(--primary)",
-                        color: "#000",
+                        color: "#fff",
                         borderRadius: "50%",
                         padding: "2px",
                       }}
@@ -418,7 +438,7 @@ export default function PublicScheduler({
                     </span>
                   )}
                   <div>
-                    <h4 style={{ fontSize: "1.15rem", marginBottom: "6px", color: isSelected ? "var(--primary)" : "var(--text-main)" }}>
+                    <h4 style={{ fontSize: "1.2rem", marginBottom: "6px", color: isSelected ? "var(--primary)" : "var(--text-main)" }}>
                       {s.name}
                     </h4>
                     {s.description && (
@@ -431,7 +451,7 @@ export default function PublicScheduler({
                     <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
                       <Clock size={14} /> {s.duration} min
                     </span>
-                    <strong style={{ fontSize: "1.25rem", color: "var(--primary)" }}>
+                    <strong style={{ fontSize: "1.3rem", color: "var(--primary)" }}>
                       R$ {s.price.toFixed(2).replace(".", ",")}
                     </strong>
                   </div>
@@ -447,7 +467,7 @@ export default function PublicScheduler({
               onClick={() => setStep(2)}
               style={{ width: "100%", maxWidth: "250px" }}
             >
-              Avançar para Data <ArrowRight size={18} />
+              Escolher Horário <ArrowRight size={18} />
             </button>
           </div>
         </div>
@@ -468,41 +488,81 @@ export default function PublicScheduler({
             }}
           >
             <CalendarIcon color="var(--primary)" size={24} />
-            Escolha o Dia e o Horário
+            Escolha o Dia e o Horário Desejado
           </h3>
+
+          {/* Legenda de Cores */}
+          <div style={{ display: "flex", gap: "20px", marginBottom: "20px", fontSize: "0.85rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ width: "14px", height: "14px", borderRadius: "4px", backgroundColor: "var(--primary)" }}></span>
+              <span>🔴 <strong>Vermelho Vivo</strong>: Horário Livre</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ width: "14px", height: "14px", borderRadius: "4px", backgroundColor: "#3a090b", border: "1px solid #661214" }}></span>
+              <span>🔴 <strong>Vermelho Escuro</strong>: Horário Ocupado</span>
+            </div>
+          </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "32px" }}>
             {/* Calendário */}
             <div>
-              <p className="label" style={{ marginBottom: "16px" }}>1. Selecione o dia</p>
-              <div className="custom-calendar" style={{ background: "rgba(0,0,0,0.2)", padding: "16px", borderRadius: "14px", border: "1px solid var(--border)" }}>
+              <p className="label" style={{ marginBottom: "16px" }}>1. Selecione o dia no calendário:</p>
+              <div className="custom-calendar" style={{ background: "rgba(0,0,0,0.3)", padding: "16px", borderRadius: "14px", border: "1px solid var(--border)" }}>
                 {renderHeader()}
                 {renderDays()}
                 {renderCells()}
               </div>
             </div>
 
-            {/* Horários */}
+            {/* Grade de Horários com Vermelho Vivo e Vermelho Escuro */}
             <div style={{ display: "flex", flexDirection: "column" }}>
               <p className="label" style={{ marginBottom: "16px" }}>
-                2. Horários disponíveis para{" "}
+                2. Horários do dia{" "}
                 <strong style={{ color: "var(--text-main)" }}>
                   {selectedDate ? format(selectedDate, "dd 'de' MMMM", { locale: ptBR }) : ""}
-                </strong>
+                </strong>:
               </p>
 
               {loadingTimes ? (
                 <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <p className="label">Buscando horários disponíveis...</p>
-                </div>
-              ) : availableTimes.length === 0 ? (
-                <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--error)", textAlign: "center", padding: "20px" }}>
-                  <p>Nenhum horário livre disponível para este dia. Por favor selecione outra data.</p>
+                  <p className="label">Carregando horários...</p>
                 </div>
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
-                  {availableTimes.map((time) => {
+                  {allTimeSlots.map((time) => {
+                    const isBooked = bookedTimes.includes(time);
+                    const isAvailable = availableTimes.includes(time);
                     const isSelected = selectedTime === time;
+
+                    if (isBooked || !isAvailable) {
+                      // Vermelho Escuro (Indisponível / Ocupado)
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          disabled
+                          style={{
+                            padding: "12px 6px",
+                            borderRadius: "10px",
+                            border: "1px solid #661214",
+                            backgroundColor: "#3a090b",
+                            color: "#7f272a",
+                            fontWeight: "600",
+                            cursor: "not-allowed",
+                            opacity: 0.8,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span style={{ fontSize: "0.95rem" }}>{time}</span>
+                          <span style={{ fontSize: "0.68rem", textTransform: "uppercase" }}>Ocupado</span>
+                        </button>
+                      );
+                    }
+
+                    // Vermelho Vivo (Livre e Clicável)
                     return (
                       <button
                         key={time}
@@ -511,14 +571,14 @@ export default function PublicScheduler({
                         style={{
                           padding: "12px 6px",
                           borderRadius: "10px",
-                          border: `1.5px solid ${isSelected ? "var(--primary)" : "var(--border)"}`,
-                          backgroundColor: isSelected ? "var(--primary)" : "var(--background)",
-                          color: isSelected ? "#000" : "var(--text-main)",
-                          fontWeight: isSelected ? "bold" : "600",
+                          border: `2px solid ${isSelected ? "#ffffff" : "var(--primary)"}`,
+                          backgroundColor: isSelected ? "var(--primary)" : "rgba(229, 9, 20, 0.15)",
+                          color: "#ffffff",
+                          fontWeight: isSelected ? "bold" : "700",
                           cursor: "pointer",
                           transition: "all 0.2s",
+                          boxShadow: isSelected ? "0 0 16px rgba(229, 9, 20, 0.6)" : "none",
                         }}
-                        className="time-slot-hover"
                       >
                         {time}
                       </button>
@@ -537,7 +597,7 @@ export default function PublicScheduler({
                   onClick={() => setStep(3)}
                   style={{ flex: 2 }}
                 >
-                  Informar Dados <ArrowRight size={18} />
+                  Continuar <ArrowRight size={18} />
                 </button>
               </div>
             </div>
@@ -545,7 +605,7 @@ export default function PublicScheduler({
         </div>
       )}
 
-      {/* PASSO 3: Formulário do Cliente (Nome, WhatsApp e Email) */}
+      {/* PASSO 3: Formulário do Cliente (Nome, WhatsApp, E-mail e Senha se necessário) */}
       {step === 3 && (
         <div className="card animate-fade-in">
           <h3
@@ -560,14 +620,14 @@ export default function PublicScheduler({
             }}
           >
             <User color="var(--primary)" size={24} />
-            Seus Dados para Contato e Confirmação
+            Confirme seus Dados para o Agendamento
           </h3>
 
           {/* Resumo do Agendamento */}
           <div
             style={{
-              backgroundColor: "rgba(212, 175, 55, 0.08)",
-              border: "1px solid rgba(212, 175, 55, 0.3)",
+              backgroundColor: "rgba(229, 9, 20, 0.1)",
+              border: "1px solid var(--primary)",
               padding: "18px",
               borderRadius: "14px",
               marginBottom: "24px",
@@ -579,15 +639,15 @@ export default function PublicScheduler({
             }}
           >
             <div>
-              <span className="label" style={{ color: "var(--primary)" }}>Resumo da Reserva:</span>
-              <h4 style={{ fontSize: "1.1rem", marginTop: "4px" }}>{selectedService?.name}</h4>
-              <p className="label" style={{ textTransform: "none", color: "var(--text-main)" }}>
+              <span className="label" style={{ color: "var(--primary)" }}>Resumo do Agendamento:</span>
+              <h4 style={{ fontSize: "1.15rem", marginTop: "4px" }}>{selectedService?.name}</h4>
+              <p className="label" style={{ textTransform: "none", color: "var(--text-main)", marginTop: "2px" }}>
                 {selectedDate && format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })} às <strong>{selectedTime}</strong>
               </p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <span className="label">Valor Total:</span>
-              <p style={{ fontSize: "1.3rem", fontWeight: "bold", color: "var(--primary)" }}>
+              <span className="label">Valor:</span>
+              <p style={{ fontSize: "1.4rem", fontWeight: "bold", color: "var(--primary)" }}>
                 R$ {selectedService?.price.toFixed(2).replace(".", ",")}
               </p>
             </div>
@@ -595,9 +655,7 @@ export default function PublicScheduler({
 
           <form onSubmit={handleSchedule} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
             <div>
-              <label className="label" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <User size={16} /> Seu Nome Completo *
-              </label>
+              <label className="label">Seu Nome Completo *</label>
               <input
                 type="text"
                 className="input-field"
@@ -609,9 +667,7 @@ export default function PublicScheduler({
             </div>
 
             <div>
-              <label className="label" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Phone size={16} /> Número do WhatsApp (com DDD) *
-              </label>
+              <label className="label">Seu Celular / WhatsApp (com DDD) *</label>
               <input
                 type="tel"
                 className="input-field"
@@ -621,14 +677,12 @@ export default function PublicScheduler({
                 required
               />
               <span className="label" style={{ fontSize: "0.78rem", marginTop: "4px", textTransform: "none" }}>
-                Enviaremos a confirmação e o lembrete direto no seu WhatsApp!
+                Você receberá a notificação de confirmação no seu WhatsApp!
               </span>
             </div>
 
             <div>
-              <label className="label" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Mail size={16} /> Seu E-mail *
-              </label>
+              <label className="label">Seu E-mail *</label>
               <input
                 type="email"
                 className="input-field"
@@ -640,7 +694,7 @@ export default function PublicScheduler({
             </div>
 
             {errorMessage && (
-              <div style={{ backgroundColor: "rgba(239, 83, 80, 0.15)", border: "1px solid var(--error)", color: "var(--error)", padding: "12px 16px", borderRadius: "10px", fontSize: "0.9rem" }}>
+              <div style={{ backgroundColor: "rgba(239, 68, 68, 0.15)", border: "1px solid var(--error)", color: "var(--error)", padding: "12px 16px", borderRadius: "10px", fontSize: "0.9rem" }}>
                 {errorMessage}
               </div>
             )}
@@ -650,39 +704,38 @@ export default function PublicScheduler({
                 Voltar
               </button>
               <button type="submit" className="btn-primary" disabled={loading} style={{ flex: 2 }}>
-                {loading ? "Confirmando..." : "Finalizar Agendamento"}
+                {loading ? "Confirmando..." : "Confirmar e Enviar para o WhatsApp"}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* PASSO 4: Sucesso e Confirmação */}
+      {/* PASSO 4: Sucesso e Confirmação via WhatsApp */}
       {step === 4 && (
         <div className="card animate-fade-in" style={{ textAlign: "center", padding: "48px 24px" }}>
-          <div style={{ width: "70px", height: "70px", borderRadius: "50%", backgroundColor: "rgba(212, 175, 55, 0.15)", color: "var(--primary)", border: "2px solid var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
-            <CheckCircle size={40} />
+          <div style={{ width: "75px", height: "75px", borderRadius: "50%", backgroundColor: "rgba(229, 9, 20, 0.15)", color: "var(--primary)", border: "2px solid var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+            <CheckCircle size={44} />
           </div>
 
-          <h2 style={{ fontSize: "1.8rem", color: "var(--primary)", marginBottom: "8px" }}>Agendamento Solicitar com Sucesso!</h2>
-          <p className="label" style={{ textTransform: "none", fontSize: "1rem", maxWidth: "500px", margin: "0 auto 32px" }}>
-            Obrigado, <strong>{clientName}</strong>! Seu agendamento para <strong>{selectedService?.name}</strong> no dia <strong>{selectedDate && format(selectedDate, "dd 'de' MMMM", { locale: ptBR })} às {selectedTime}</strong> foi enviado ao barbeiro <strong>{barberName}</strong>.
+          <h2 style={{ fontSize: "1.9rem", color: "var(--primary)", marginBottom: "8px", fontWeight: "800" }}>
+            Agendamento Confirmado com Sucesso!
+          </h2>
+          <p className="label" style={{ textTransform: "none", fontSize: "1.05rem", maxWidth: "550px", margin: "0 auto 32px" }}>
+            Parabéns, <strong>{clientName}</strong>! Seu horário para o serviço <strong>{selectedService?.name}</strong> foi reservado para <strong>{selectedDate && format(selectedDate, "dd 'de' MMMM", { locale: ptBR })} às {selectedTime}</strong>.
           </p>
 
           <div style={{ backgroundColor: "var(--background)", border: "1px solid var(--border)", padding: "20px", borderRadius: "14px", maxWidth: "450px", margin: "0 auto 32px", textAlign: "left" }}>
-            <span className="label">Resumo do Pedido:</span>
-            <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Profissional:</span>
-                <strong>{barberName}</strong>
+            <span className="label" style={{ color: "var(--primary)" }}>📲 Notificação de WhatsApp Enviada:</span>
+            <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px", fontSize: "0.95rem" }}>
+              <div>
+                <span>Profissional:</span> <strong>{barberName}</strong>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>WhatsApp Cadastrado:</span>
-                <strong>{clientPhone}</strong>
+              <div>
+                <span>Celular Cadastrado:</span> <strong>{clientPhone}</strong>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>Valor a pagar no local:</span>
-                <strong style={{ color: "var(--primary)" }}>R$ {selectedService?.price.toFixed(2).replace(".", ",")}</strong>
+              <div>
+                <span>Serviço:</span> <strong>{selectedService?.name}</strong> (R$ {selectedService?.price.toFixed(2).replace(".", ",")})
               </div>
             </div>
           </div>
@@ -695,7 +748,7 @@ export default function PublicScheduler({
               setSelectedTime("");
             }}
           >
-            Realizar Outro Agendamento
+            Fazer Novo Agendamento
           </button>
         </div>
       )}

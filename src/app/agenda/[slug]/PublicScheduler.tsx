@@ -577,7 +577,7 @@ export default function PublicScheduler({
                           fontWeight: isSelected ? "bold" : "700",
                           cursor: "pointer",
                           transition: "all 0.2s",
-                          boxShadow: isSelected ? "0 0 16px rgba(229, 9, 20, 0.6)" : "none",
+                          boxShadow: "none",
                         }}
                       >
                         {time}

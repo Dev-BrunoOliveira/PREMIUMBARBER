@@ -221,7 +221,6 @@ export default function BarberDashboardView({
         style={{
           background: "linear-gradient(135deg, rgba(157, 78, 223, 0.2) 0%, var(--surface) 100%)",
           border: "2px solid #9d4edf",
-          boxShadow: "0 8px 32px rgba(157, 78, 223, 0.25)",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>

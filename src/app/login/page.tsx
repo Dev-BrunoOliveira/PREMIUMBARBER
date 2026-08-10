@@ -1,11 +1,12 @@
 "use client";
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
-import { LogIn, UserPlus } from "lucide-react";
+import { signIn, useSession, signOut } from "next-auth/react";
+import { LogIn, UserPlus, LogOut, LayoutDashboard } from "lucide-react";
 import styles from "./login.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function LoginContent() {
+  const { data: session, status } = useSession();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -85,6 +86,52 @@ function LoginContent() {
           borderColor: isBarber ? "#2e204a" : "#272730",
         }}
       >
+        {session?.user && (
+          <div
+            style={{
+              marginBottom: "20px",
+              padding: "14px 16px",
+              backgroundColor: "rgba(157, 78, 223, 0.1)",
+              border: "1px solid var(--primary)",
+              borderRadius: "12px",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontSize: "0.9rem", color: "var(--text-main)", marginBottom: "10px" }}>
+              Você está conectado como <strong>{session.user.name || session.user.email}</strong>
+            </p>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ padding: "8px 14px", fontSize: "0.85rem", borderRadius: "8px" }}
+                onClick={() => router.push("/dashboard")}
+              >
+                <LayoutDashboard size={16} /> Meu Painel
+              </button>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "rgba(255, 59, 48, 0.15)",
+                  border: "1px solid rgba(255, 59, 48, 0.4)",
+                  color: "#ff3b30",
+                  padding: "8px 14px",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                  fontSize: "0.85rem",
+                }}
+              >
+                <LogOut size={16} /> Sair
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Seleção de Perfil: PROFISSIONAL x CLIENTE */}
         <div
           style={{

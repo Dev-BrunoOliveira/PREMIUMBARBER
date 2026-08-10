@@ -16,30 +16,6 @@ export default async function Home() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", color: "var(--text-main)" }}>
-      {/* Navbar Minimalista */}
-      <nav
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "24px 16px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ fontSize: "1.5rem", fontWeight: "800" }}>
-          Premium<span style={{ color: "var(--primary)" }}>Barber</span>
-        </div>
-        <div style={{ display: "flex", gap: "12px" }}>
-          <Link href="/login?role=BARBER" className="btn-secondary" style={{ padding: "10px 18px", fontSize: "0.9rem" }}>
-            🟣 Área do Barbeiro
-          </Link>
-          <Link href={bookingHref} className="btn-primary" style={{ padding: "10px 18px", fontSize: "0.9rem" }}>
-            🔴 Agendar Horário <ArrowRight size={16} />
-          </Link>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section
         style={{

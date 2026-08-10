@@ -249,3 +249,13 @@ button {
   box-shadow: none;
   opacity: 0.95;
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+

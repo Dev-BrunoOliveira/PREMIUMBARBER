@@ -13,13 +13,13 @@ export default function Navbar() {
     <nav
       style={{
         backgroundColor: "var(--surface)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
+        borderBottom: "1px solid var(--border)",
         position: "sticky",
         top: 0,
         zIndex: 50,
         backdropFilter: "blur(24px) saturate(210%)",
         WebkitBackdropFilter: "blur(24px) saturate(210%)",
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.35), inset 0 -1px 0 0 rgba(255, 255, 255, 0.1)",
+        boxShadow: "none",
         transition: "all 0.3s ease",
       }}
     >
@@ -47,7 +47,7 @@ export default function Navbar() {
             letterSpacing: "-0.02em",
           }}
         >
-          Premium<span style={{ color: "var(--primary)" }}>Barber</span>
+          Barber<span style={{ color: "var(--primary)" }}>App</span>
         </Link>
 
         {/* Menu de Ações */}
@@ -78,7 +78,7 @@ export default function Navbar() {
                     fontWeight: "700",
                     padding: "2px 10px",
                     borderRadius: "12px",
-                    backgroundColor: isBarber ? "rgba(168, 85, 247, 0.2)" : "rgba(56, 189, 248, 0.2)",
+                    backgroundColor: "var(--primary-glow)",
                     color: "var(--primary)",
                     border: "1px solid var(--primary)",
                     textTransform: "uppercase",
@@ -145,7 +145,7 @@ export default function Navbar() {
                 <LogIn size={16} /> Entrar
               </Link>
               <Link
-                href="/agendar"
+                href="/login"
                 className="btn-primary"
                 style={{
                   padding: "8px 16px",

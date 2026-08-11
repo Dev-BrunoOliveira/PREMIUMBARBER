@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, Suspense } from "react";
 import { signIn, useSession, signOut } from "next-auth/react";
 import { LogIn, UserPlus, LogOut, LayoutDashboard } from "lucide-react";
@@ -6,20 +7,18 @@ import styles from "./login.module.css";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function LoginContent() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Padrão: PRIORIZAR O LOGIN DO BARBEIRO
   const initialRole = searchParams.get("role") === "CLIENT" ? "CLIENT" : "BARBER";
   const [role, setRole] = useState<"CLIENT" | "BARBER">(initialRole);
 
   const isBarber = role === "BARBER";
 
-  // Quando estiver em Barbeiro -> Vai DIRETO para o Painel do Barbeiro (/dashboard)
   const targetRedirect = isBarber
     ? "/dashboard"
     : searchParams.get("callbackUrl") || "/agenda/barbeiro-premium";
@@ -41,9 +40,9 @@ function LoginContent() {
         redirect: false,
       });
       if (res?.error) {
-        alert("E-mail ou senha incorretos");
+        alert("E-mail ou senha incorretos.");
       } else {
-        router.push(targetRedirect);
+        router.push("/dashboard");
       }
     } else {
       const res = await fetch("/api/auth/register", {
@@ -54,9 +53,9 @@ function LoginContent() {
       const data = await res.json();
 
       if (res.ok) {
-        await signIn("credentials", { email, password, callbackUrl: targetRedirect });
+        await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
       } else {
-        alert(data.error || "Erro ao criar conta");
+        alert(data.error || "Erro ao criar conta.");
       }
     }
     setLoading(false);
@@ -72,18 +71,19 @@ function LoginContent() {
         alignItems: "center",
         justifyContent: "center",
         padding: "24px",
-        backgroundColor: isBarber ? "#0b0813" : "#09090b",
+        backgroundColor: "var(--background)",
+        color: "var(--text-main)",
         transition: "all 0.3s ease",
       }}
     >
       <div
-        className={`card animate-fade-in ${styles.loginCard}`}
+        className="card animate-fade-in"
         style={{
           width: "100%",
           maxWidth: "440px",
           padding: "32px 24px",
-          backgroundColor: isBarber ? "#140e22" : "#121216",
-          borderColor: isBarber ? "#2e204a" : "#272730",
+          backgroundColor: "var(--surface)",
+          border: "1px solid var(--border)",
         }}
       >
         {session?.user && (
@@ -91,7 +91,7 @@ function LoginContent() {
             style={{
               marginBottom: "20px",
               padding: "14px 16px",
-              backgroundColor: "rgba(157, 78, 223, 0.1)",
+              backgroundColor: "var(--primary-glow)",
               border: "1px solid var(--primary)",
               borderRadius: "12px",
               textAlign: "center",
@@ -116,9 +116,9 @@ function LoginContent() {
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
-                  background: "rgba(255, 59, 48, 0.15)",
-                  border: "1px solid rgba(255, 59, 48, 0.4)",
-                  color: "#ff3b30",
+                  background: "rgba(244, 63, 94, 0.15)",
+                  border: "1px solid rgba(244, 63, 94, 0.4)",
+                  color: "#f43f5e",
                   padding: "8px 14px",
                   borderRadius: "8px",
                   cursor: "pointer",
@@ -132,13 +132,13 @@ function LoginContent() {
           </div>
         )}
 
-        {/* Seleção de Perfil: PROFISSIONAL x CLIENTE */}
+        {/* Seleção de Perfil */}
         <div
           style={{
             display: "flex",
             gap: "6px",
             marginBottom: "24px",
-            backgroundColor: "rgba(0,0,0,0.4)",
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
             padding: "4px",
             borderRadius: "10px",
             border: "1px solid var(--border)",
@@ -149,49 +149,49 @@ function LoginContent() {
             onClick={() => setRole("BARBER")}
             style={{
               flex: 1,
-              padding: "12px",
+              padding: "10px",
               borderRadius: "8px",
               fontWeight: "700",
-              fontSize: "0.9rem",
-              backgroundColor: role === "BARBER" ? "#9d4edf" : "transparent",
-              color: role === "BARBER" ? "#fff" : "var(--text-muted)",
-              transition: "all 0.2s",
+              fontSize: "0.88rem",
+              backgroundColor: role === "BARBER" ? "var(--primary)" : "transparent",
+              color: role === "BARBER" ? "#ffffff" : "var(--text-muted)",
+              transition: "all 0.2s ease",
             }}
           >
-            🟣 Sou Barbeiro
+            Sou Barbeiro
           </button>
           <button
             type="button"
             onClick={() => setRole("CLIENT")}
             style={{
               flex: 1,
-              padding: "12px",
+              padding: "10px",
               borderRadius: "8px",
               fontWeight: "700",
-              fontSize: "0.9rem",
-              backgroundColor: role === "CLIENT" ? "#e50914" : "transparent",
-              color: role === "CLIENT" ? "#fff" : "var(--text-muted)",
-              transition: "all 0.2s",
+              fontSize: "0.88rem",
+              backgroundColor: role === "CLIENT" ? "var(--primary)" : "transparent",
+              color: role === "CLIENT" ? "#ffffff" : "var(--text-muted)",
+              transition: "all 0.2s ease",
             }}
           >
-            🔴 Sou Cliente
+            Sou Cliente
           </button>
         </div>
 
-        <div className={styles.header} style={{ marginBottom: "20px", textAlign: "center" }}>
+        <div style={{ marginBottom: "20px", textAlign: "center" }}>
           <h1 style={{ fontSize: "1.8rem", fontWeight: "800" }}>
-            Premium<span style={{ color: isBarber ? "#9d4edf" : "#e50914" }}>Barber</span>
+            Barber<span style={{ color: "var(--primary)" }}>App</span>
           </h1>
           <p className="label" style={{ textTransform: "none", marginTop: "4px" }}>
             {isBarber
-              ? "Painel do Barbeiro - Gerencie seus agendamentos e horários"
+              ? "Painel do Barbeiro - Gerencie agendamentos e carteira de clientes"
               : isLogin
-              ? "Área do Cliente - Faça login para visualizar e agendar"
-              : "Crie sua conta de cliente (Nome, WhatsApp, Email e Senha)"}
+              ? "Área do Cliente - Faça login para agendar e gerenciar horários"
+              : "Crie sua conta de cliente (Nome, WhatsApp, E-mail e Senha)"}
           </p>
         </div>
 
-        <form className={styles.form} onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {!isLogin && (
             <>
               <div>
@@ -205,7 +205,7 @@ function LoginContent() {
                 />
               </div>
               <div>
-                <label className="label">Número do Celular / WhatsApp (com DDD) *</label>
+                <label className="label">Celular / WhatsApp (com DDD) *</label>
                 <input
                   name="phone"
                   type="tel"
@@ -243,13 +243,10 @@ function LoginContent() {
             style={{
               width: "100%",
               marginTop: "12px",
-              background: isBarber
-                ? "linear-gradient(135deg, #9d4edf 0%, #7b2cbf 100%)"
-                : "linear-gradient(135deg, #e50914 0%, #b20710 100%)",
             }}
             disabled={loading}
           >
-            {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
+            {isLogin ? <LogIn size={18} /> : <UserPlus size={18} />}
             {loading ? "Aguarde..." : isLogin ? (isBarber ? "Entrar no Painel do Barbeiro" : "Entrar como Cliente") : "Criar Conta"}
           </button>
         </form>
@@ -257,9 +254,8 @@ function LoginContent() {
         <div style={{ marginTop: "20px", textAlign: "center" }}>
           <button
             type="button"
-            className={styles.toggleBtn}
             onClick={() => setIsLogin(!isLogin)}
-            style={{ color: "var(--text-muted)", fontSize: "0.9rem", textDecoration: "underline" }}
+            style={{ color: "var(--text-muted)", fontSize: "0.88rem", textDecoration: "underline" }}
           >
             {isLogin ? "Ainda não tem conta? Criar Conta" : "Já tem conta? Fazer Login"}
           </button>

@@ -91,7 +91,7 @@ export default function ClientDirectoryTab({ barberName, appointments }: ClientD
     if (!cleanPhone) return "#";
 
     const lastDateStr = format(client.lastVisit, "dd/MM/yyyy");
-    const msg = `Fala *${client.name}*! Tudo certo? Sou o barbeiro *${barberName}*. Vi aqui que sua última visita foi no dia *${lastDateStr}*. Que tal garantir o seu próximo corte para manter o estilo em dia? 💈✂️`;
+    const msg = `Fala *${client.name}*! Tudo certo? Sou o barbeiro *${barberName}*. Vi aqui que sua última visita foi no dia *${lastDateStr}*. Que tal garantir o seu próximo corte para manter o estilo em dia? ✂️`;
 
     return `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`;
   };

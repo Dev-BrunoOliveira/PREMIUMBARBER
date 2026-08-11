@@ -10,6 +10,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const userRole = (session.user as any).role;
+    if (userRole !== "BARBER") {
+      return NextResponse.json({ error: "Apenas barbeiros podem gerenciar horários operacionais" }, { status: 403 });
+    }
+
     const barberId = (session.user as any).id;
     const { date, time, action } = await req.json();
 

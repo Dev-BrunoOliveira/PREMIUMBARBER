@@ -12,7 +12,7 @@ export default async function Home() {
     where: { role: "BARBER" },
   });
 
-  const bookingHref = barber?.slug ? `/agenda/${barber.slug}` : "/agenda/barbeiro-premium";
+  const bookingHref = "/login";
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", color: "var(--text-main)" }}>
@@ -26,23 +26,7 @@ export default async function Home() {
         }}
         className="animate-fade-in"
       >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "rgba(229, 9, 20, 0.1)",
-            border: "1px solid var(--primary)",
-            padding: "8px 18px",
-            borderRadius: "20px",
-            marginBottom: "24px",
-          }}
-        >
-          <Sparkles size={16} color="var(--primary)" />
-          <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase" }}>
-            Agendamento do Cliente & Sem Fila
-          </span>
-        </div>
+       
 
         <h1
           style={{
@@ -72,10 +56,10 @@ export default async function Home() {
 
         <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
           <Link href={bookingHref} className="btn-primary" style={{ padding: "16px 36px", fontSize: "1.1rem" }}>
-            <Calendar size={20} /> Agendar na Barberia do Jé
+            <Calendar size={20} /> Agende seu Horário
           </Link>
           <Link href="/login?role=BARBER" className="btn-secondary" style={{ padding: "16px 28px", fontSize: "1.1rem" }}>
-            🟣 Painel do Barbeiro
+            Sou Barbeiro
           </Link>
         </div>
       </section>
@@ -130,8 +114,8 @@ export default async function Home() {
       <section style={{ backgroundColor: "var(--surface)", borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", padding: "60px 16px" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "32px" }}>
           <div style={{ display: "flex", gap: "16px" }}>
-            <div style={{ width: "50px", height: "50px", borderRadius: "12px", backgroundColor: "rgba(229, 9, 20, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <Calendar size={26} />
+            <div style={{ width: "50px", height: "50px", borderRadius: "14px", backgroundColor: "var(--primary-glow)", border: "1px solid var(--border)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Calendar size={24} />
             </div>
             <div>
               <h4 style={{ fontSize: "1.1rem", marginBottom: "6px" }}>Agendamento 24/7</h4>
@@ -140,8 +124,8 @@ export default async function Home() {
           </div>
 
           <div style={{ display: "flex", gap: "16px" }}>
-            <div style={{ width: "50px", height: "50px", borderRadius: "12px", backgroundColor: "rgba(229, 9, 20, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <MessageCircle size={26} />
+            <div style={{ width: "50px", height: "50px", borderRadius: "14px", backgroundColor: "var(--primary-glow)", border: "1px solid var(--border)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <MessageCircle size={24} />
             </div>
             <div>
               <h4 style={{ fontSize: "1.1rem", marginBottom: "6px" }}>Notificação via WhatsApp</h4>
@@ -150,8 +134,8 @@ export default async function Home() {
           </div>
 
           <div style={{ display: "flex", gap: "16px" }}>
-            <div style={{ width: "50px", height: "50px", borderRadius: "12px", backgroundColor: "rgba(229, 9, 20, 0.15)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-              <ShieldCheck size={26} />
+            <div style={{ width: "50px", height: "50px", borderRadius: "14px", backgroundColor: "var(--primary-glow)", border: "1px solid var(--border)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <ShieldCheck size={24} />
             </div>
             <div>
               <h4 style={{ fontSize: "1.1rem", marginBottom: "6px" }}>Sem Fila de Espera</h4>

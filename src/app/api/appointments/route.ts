@@ -135,6 +135,11 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const userRole = (session.user as any).role;
+    if (userRole !== "BARBER") {
+      return NextResponse.json({ error: "Apenas barbeiros podem alterar o status de agendamentos" }, { status: 403 });
+    }
+
     const { id, status } = await req.json();
 
     if (!id || !status) {

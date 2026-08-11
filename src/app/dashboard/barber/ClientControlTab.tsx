@@ -107,13 +107,13 @@ export default function ClientControlTab({
 
     switch (type) {
       case "REMINDER":
-        messageText = `Olá *${clientDisplayName}*! Passando pra lembrar do seu horário de *${serviceName}* comigo (*${barberName}*) marcado para *hoje às ${timeStr}*. Nos vemos em breve! ✂️💈`;
+        messageText = `Olá *${clientDisplayName}*! Passando pra lembrar do seu horário de *${serviceName}* comigo (*${barberName}*) marcado para *hoje às ${timeStr}*. Nos vemos em breve! ✂️`;
         break;
       case "CONFIRMATION":
         messageText = `Olá *${clientDisplayName}*! Seu agendamento para *${serviceName}* no dia *${dateStr} às ${timeStr}* foi *CONFIRMADO* com sucesso! Até lá! 👍✂️`;
         break;
       case "THANKS":
-        messageText = `Fala *${clientDisplayName}*! Obrigado pela preferência hoje! Foi um prazer te atender. Qualquer coisa estou à disposição! 💈⚡`;
+        messageText = `Fala *${clientDisplayName}*! Obrigado pela preferência hoje! Foi um prazer te atender. Qualquer coisa estou à disposição! ✂️⚡`;
         break;
       case "DIRECT":
       default:

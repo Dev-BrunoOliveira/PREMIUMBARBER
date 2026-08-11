@@ -27,7 +27,7 @@ export default async function AgendaPage({
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", padding: "24px 16px" }}>
       <header style={{ maxWidth: "850px", margin: "0 auto 32px", textAlign: "center" }} className="animate-fade-in">
-        <div style={{ display: "inline-block", backgroundColor: "rgba(229, 9, 20, 0.1)", border: "1px solid var(--primary)", padding: "6px 16px", borderRadius: "20px", marginBottom: "16px" }}>
+        <div style={{ display: "inline-block", backgroundColor: "var(--primary-glow)", border: "1px solid var(--primary)", padding: "6px 16px", borderRadius: "20px", marginBottom: "16px" }}>
           <span style={{ color: "var(--primary)", fontSize: "0.85rem", fontWeight: "700", textTransform: "uppercase" }}>
             Agendamento Online
           </span>

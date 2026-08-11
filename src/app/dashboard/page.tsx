@@ -49,7 +49,7 @@ export default async function Dashboard() {
               Olá, <span style={{ color: "var(--primary)" }}>{user.name || user.email?.split("@")[0]}</span>
             </h2>
             <p className="label" style={{ textTransform: "none", marginTop: "2px" }}>
-              {isBarber ? "⚡ Painel do Barbeiro" : "✂️ Área do Cliente"}
+              {isBarber ? "Painel de Gerenciamento" : "Área do Cliente"}
             </p>
           </div>
 
@@ -67,7 +67,7 @@ export default async function Dashboard() {
                 backdropFilter: "blur(8px)",
               }}
             >
-              {isBarber ? "⚡ Painel do Barbeiro" : "✂️ Área do Cliente"}
+              {isBarber ? "Painel do Barbeiro" : "Área do Cliente"}
             </span>
             <LogoutButton />
           </div>

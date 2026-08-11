@@ -67,6 +67,11 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
+    const userRole = (session.user as any).role;
+    if (userRole !== "BARBER") {
+      return NextResponse.json({ error: "Apenas barbeiros podem excluir serviços" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 

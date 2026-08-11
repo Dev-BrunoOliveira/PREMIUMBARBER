@@ -413,7 +413,7 @@ export default function PublicScheduler({
                   style={{
                     padding: "20px",
                     borderRadius: "14px",
-                    backgroundColor: isSelected ? "rgba(229, 9, 20, 0.15)" : "var(--background)",
+                    backgroundColor: isSelected ? "var(--primary-glow)" : "var(--surface)",
                     border: `2px solid ${isSelected ? "var(--primary)" : "var(--border)"}`,
                     cursor: "pointer",
                     display: "flex",
@@ -464,7 +464,13 @@ export default function PublicScheduler({
             <button
               className="btn-primary"
               disabled={!selectedService}
-              onClick={() => setStep(2)}
+              onClick={() => {
+                if (!session) {
+                  window.location.href = "/login";
+                  return;
+                }
+                setStep(2);
+              }}
               style={{ width: "100%", maxWidth: "250px" }}
             >
               Escolher Horário <ArrowRight size={18} />
@@ -495,11 +501,11 @@ export default function PublicScheduler({
           <div style={{ display: "flex", gap: "20px", marginBottom: "20px", fontSize: "0.85rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span style={{ width: "14px", height: "14px", borderRadius: "4px", backgroundColor: "var(--primary)" }}></span>
-              <span>🔴 <strong>Vermelho Vivo</strong>: Horário Livre</span>
+              <span><strong>Horário Livre</strong></span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "14px", height: "14px", borderRadius: "4px", backgroundColor: "#3a090b", border: "1px solid #661214" }}></span>
-              <span>🔴 <strong>Vermelho Escuro</strong>: Horário Ocupado</span>
+              <span style={{ width: "14px", height: "14px", borderRadius: "4px", backgroundColor: "var(--surface-hover)", border: "1px solid var(--border)" }}></span>
+              <span><strong style={{ color: "var(--text-muted)" }}>Horário Ocupado</strong></span>
             </div>
           </div>
 
@@ -535,7 +541,6 @@ export default function PublicScheduler({
                     const isSelected = selectedTime === time;
 
                     if (isBooked || !isAvailable) {
-                      // Vermelho Escuro (Indisponível / Ocupado)
                       return (
                         <button
                           key={time}
@@ -544,12 +549,12 @@ export default function PublicScheduler({
                           style={{
                             padding: "12px 6px",
                             borderRadius: "10px",
-                            border: "1px solid #661214",
-                            backgroundColor: "#3a090b",
-                            color: "#7f272a",
+                            border: "1px solid var(--border)",
+                            backgroundColor: "var(--surface)",
+                            color: "var(--text-muted)",
                             fontWeight: "600",
                             cursor: "not-allowed",
-                            opacity: 0.8,
+                            opacity: 0.5,
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
@@ -562,7 +567,6 @@ export default function PublicScheduler({
                       );
                     }
 
-                    // Vermelho Vivo (Livre e Clicável)
                     return (
                       <button
                         key={time}
@@ -571,13 +575,12 @@ export default function PublicScheduler({
                         style={{
                           padding: "12px 6px",
                           borderRadius: "10px",
-                          border: `2px solid ${isSelected ? "#ffffff" : "var(--primary)"}`,
-                          backgroundColor: isSelected ? "var(--primary)" : "rgba(229, 9, 20, 0.15)",
-                          color: "#ffffff",
+                          border: `2px solid ${isSelected ? "var(--text-main)" : "var(--primary)"}`,
+                          backgroundColor: isSelected ? "var(--primary)" : "var(--primary-glow)",
+                          color: isSelected ? "#ffffff" : "var(--primary)",
                           fontWeight: isSelected ? "bold" : "700",
                           cursor: "pointer",
                           transition: "all 0.2s",
-                          boxShadow: "none",
                         }}
                       >
                         {time}
@@ -626,7 +629,7 @@ export default function PublicScheduler({
           {/* Resumo do Agendamento */}
           <div
             style={{
-              backgroundColor: "rgba(229, 9, 20, 0.1)",
+              backgroundColor: "var(--primary-glow)",
               border: "1px solid var(--primary)",
               padding: "18px",
               borderRadius: "14px",
@@ -714,7 +717,7 @@ export default function PublicScheduler({
       {/* PASSO 4: Sucesso e Confirmação via WhatsApp */}
       {step === 4 && (
         <div className="card animate-fade-in" style={{ textAlign: "center", padding: "48px 24px" }}>
-          <div style={{ width: "75px", height: "75px", borderRadius: "50%", backgroundColor: "rgba(229, 9, 20, 0.15)", color: "var(--primary)", border: "2px solid var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
+          <div style={{ width: "75px", height: "75px", borderRadius: "50%", backgroundColor: "var(--primary-glow)", color: "var(--primary)", border: "2px solid var(--primary)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px" }}>
             <CheckCircle size={44} />
           </div>
 

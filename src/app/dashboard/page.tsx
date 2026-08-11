@@ -49,14 +49,14 @@ export default async function Dashboard() {
               Olá, <span style={{ color: "var(--primary)" }}>{user.name || user.email?.split("@")[0]}</span>
             </h2>
             <p className="label" style={{ textTransform: "none", marginTop: "2px" }}>
-              {isBarber ? "🟣 Você está no Painel de Gerenciamento do Barbeiro" : "🔴 Área do Cliente"}
+              {isBarber ? "⚡ Painel do Barbeiro" : "✂️ Área do Cliente"}
             </p>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <span
               style={{
-                backgroundColor: isBarber ? "rgba(157, 78, 223, 0.15)" : "rgba(229, 9, 20, 0.15)",
+                backgroundColor: "var(--primary-glow)",
                 color: "var(--primary)",
                 padding: "8px 18px",
                 borderRadius: "20px",
@@ -64,9 +64,10 @@ export default async function Dashboard() {
                 fontWeight: "700",
                 fontSize: "0.85rem",
                 textTransform: "uppercase",
+                backdropFilter: "blur(8px)",
               }}
             >
-              {isBarber ? "🟣 Painel do Barbeiro" : "🔴 Área do Cliente"}
+              {isBarber ? "⚡ Painel do Barbeiro" : "✂️ Área do Cliente"}
             </span>
             <LogoutButton />
           </div>

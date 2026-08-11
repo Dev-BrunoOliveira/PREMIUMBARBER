@@ -1,53 +1,55 @@
 :root {
-  /* Tema Padrão do Cliente: Vermelho & Preto Elegante */
-  --background: #09090b;
-  --surface: #121216;
-  --surface-hover: #1c1c22;
-  --primary: #e50914; 
-  --primary-hover: #b20710;
-  --primary-glow: rgba(229, 9, 20, 0.35);
-  --secondary: #1a1a20;
-  --text-main: #ffffff;
-  --text-muted: #a1a1aa;
-  --border: #272730;
-  --border-active: #e50914;
-  --error: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --info: #3b82f6;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* Tema Padrão do Cliente: Crystal Glass Cyan & Deep Slate */
+  --background: #07090e;
+  --surface: rgba(15, 23, 42, 0.55);
+  --surface-hover: rgba(30, 41, 59, 0.75);
+  --primary: #38bdf8;
+  --primary-hover: #0284c7;
+  --primary-glow: rgba(56, 189, 248, 0.4);
+  --secondary: rgba(255, 255, 255, 0.07);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.15);
+  --border-active: #38bdf8;
+  --error: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --info: #60a5fa;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --glass-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.55);
+  --glass-backdrop: blur(28px) saturate(210%);
 }
 
-/* Tema Exclusivo do Barbeiro / Painel Administrativo: Roxo Real & Dark Violet */
+/* Tema Exclusivo do Barbeiro: Amethyst Glass & Violet Deep */
 .barber-theme,
 [data-role="BARBER"] {
-  --background: #0b0813;
-  --surface: #140e22;
-  --surface-hover: #1e1533;
-  --primary: #9d4edf;
-  --primary-hover: #7b2cbf;
-  --primary-glow: rgba(157, 78, 223, 0.35);
-  --secondary: #19122b;
-  --text-main: #f8f7ff;
-  --text-muted: #b3a5d0;
-  --border: #2e204a;
-  --border-active: #9d4edf;
+  --background: #090514;
+  --surface: rgba(23, 15, 38, 0.6);
+  --surface-hover: rgba(38, 25, 62, 0.8);
+  --primary: #c084fc;
+  --primary-hover: #a855f7;
+  --primary-glow: rgba(192, 132, 252, 0.45);
+  --secondary: rgba(255, 255, 255, 0.08);
+  --text-main: #faf5ff;
+  --text-muted: #d8b4fe;
+  --border: rgba(255, 255, 255, 0.18);
+  --border-active: #c084fc;
 }
 
 [data-theme="light"] {
-  --background: #f8f9fa;
-  --surface: #ffffff;
-  --surface-hover: #f1f3f5;
-  --primary: #dc2626;
-  --primary-hover: #991b1b;
-  --primary-glow: rgba(220, 38, 38, 0.15);
-  --secondary: #e9ecef;
-  --text-main: #18181b;
-  --text-muted: #71717a;
-  --border: #e4e4e7;
-  --border-active: #dc2626;
+  --background: #e2e8f0;
+  --surface: rgba(255, 255, 255, 0.65);
+  --surface-hover: rgba(255, 255, 255, 0.85);
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-glow: rgba(2, 132, 199, 0.25);
+  --secondary: rgba(255, 255, 255, 0.4);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border: rgba(255, 255, 255, 0.5);
+  --border-active: #0284c7;
 }
 
 * {
@@ -56,6 +58,7 @@
   margin: 0;
 }
 
+/* Fundo com Orbes de Luz Fluindo (Refração de Vidro Real) */
 body {
   background-color: var(--background);
   color: var(--text-main);
@@ -63,7 +66,45 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   line-height: 1.5;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.22) 0%, rgba(56, 189, 248, 0) 70%);
+  filter: blur(80px);
+  z-index: -2;
+  animation: floatOrb 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -10%;
+  right: -10%;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, rgba(168, 85, 247, 0) 70%);
+  filter: blur(90px);
+  z-index: -2;
+  animation: floatOrb 18s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.1); }
+  100% { transform: translate(-30px, 50px) scale(0.95); }
 }
 
 a {
@@ -78,25 +119,71 @@ button {
   font-family: inherit;
 }
 
+/* Card Hiper-Realista de Vidro Liquido */
+.card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 40%, var(--surface) 100%);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border-radius: var(--radius-lg);
+  padding: 26px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 
+    var(--glass-shadow),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+/* Reflexo diagonal de luz do vidro */
+.card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 45%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 55%
+  );
+  transform: rotate(25deg);
+  pointer-events: none;
+}
+
+/* Botão Primário Estilo Cristal */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  position: relative;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%),
+              linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
   color: #ffffff;
-  padding: 14px 24px;
+  padding: 12px 22px;
   border-radius: var(--radius-md);
   font-weight: 700;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: none;
+  box-shadow: 0 8px 25px var(--primary-glow), inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 .btn-primary:hover:not(:disabled) {
-  opacity: 0.92;
-  filter: brightness(1.05);
-  box-shadow: none;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px var(--primary-glow), inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  filter: brightness(1.1);
 }
 
 .btn-primary:disabled {
@@ -106,107 +193,119 @@ button {
   box-shadow: none !important;
 }
 
+/* Botão Secundário Translucido */
 .btn-secondary {
-  background-color: var(--surface);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   color: var(--text-main);
-  padding: 14px 24px;
+  padding: 12px 22px;
   border-radius: var(--radius-md);
   font-weight: 600;
-  border: 1px solid var(--border);
-  transition: all 0.2s ease;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15), 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary:hover {
-  background-color: var(--surface-hover);
+  background: rgba(255, 255, 255, 0.15);
   border-color: var(--border-active);
-  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.3), 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
-.card {
-  background-color: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 28px;
-  border: 1px solid var(--border);
-  box-shadow: none;
-  backdrop-filter: blur(10px);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
+/* Inputs em Vidro Escavado (Slot de Vidro) */
 .input-field {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   color: var(--text-main);
   padding: 14px 18px;
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.98rem;
   margin-top: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: none;
-  background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 3px var(--primary-glow), inset 0 2px 6px rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.45);
 }
 
 .label {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+/* Badges Frosted Crystal */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
   border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
 }
 
 .badge-pending {
-  background-color: rgba(245, 158, 11, 0.15);
+  background: rgba(251, 191, 36, 0.18);
   color: var(--warning);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.15);
 }
 
 .badge-confirmed {
-  background-color: rgba(157, 78, 223, 0.2);
+  background: rgba(56, 189, 248, 0.2);
   color: var(--primary);
   border: 1px solid var(--primary);
+  box-shadow: 0 4px 16px var(--primary-glow);
 }
 
 .badge-completed {
-  background-color: rgba(16, 185, 129, 0.15);
+  background: rgba(52, 211, 153, 0.18);
   color: var(--success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  box-shadow: 0 4px 14px rgba(52, 211, 153, 0.15);
 }
 
 .badge-canceled {
-  background-color: rgba(239, 68, 68, 0.15);
+  background: rgba(248, 113, 113, 0.18);
   color: var(--error);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  box-shadow: 0 4px 14px rgba(248, 113, 113, 0.15);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .icon-btn {
@@ -228,26 +327,14 @@ button {
   opacity: 0.9;
 }
 
-.calendar-day-hover:hover {
-  background-color: var(--surface-hover) !important;
-  color: var(--primary) !important;
-  opacity: 0.9;
-}
-
-.time-slot-hover:hover:not(:disabled) {
-  border-color: var(--primary) !important;
-  box-shadow: none;
-  opacity: 0.9;
-}
-
 .hover-card {
-  transition: border-color 0.2s ease, opacity 0.2s ease;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .hover-card:hover {
   border-color: var(--primary);
-  box-shadow: none;
-  opacity: 0.95;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px var(--primary-glow), inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
 }
 
 @keyframes spin {
@@ -258,4 +345,3 @@ button {
 .spin {
   animation: spin 1s linear infinite;
 }
-

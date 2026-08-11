@@ -17,7 +17,7 @@ export default function BioLinkBanner({ slug }: BioLinkBannerProps) {
     <div
       className="card animate-fade-in"
       style={{
-        background: "linear-gradient(135deg, rgba(157, 78, 223, 0.18) 0%, var(--surface) 100%)",
+        background: "linear-gradient(135deg, var(--primary-glow) 0%, var(--surface) 100%)",
         border: "1.5px solid var(--border-active)",
         padding: "20px 24px",
       }}

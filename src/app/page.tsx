@@ -53,8 +53,8 @@ export default async function Home() {
             letterSpacing: "-0.02em",
           }}
         >
-          Estilo & Precisão para o <br />
-          <span style={{ color: "var(--primary)" }}>Homem Moderno</span>
+          Fique Sempre <br />
+          <span style={{ color: "var(--primary)" }}>Elegante</span>
         </h1>
 
         <p
@@ -72,7 +72,7 @@ export default async function Home() {
 
         <div style={{ display: "flex", justifyContent: "center", gap: "16px", flexWrap: "wrap" }}>
           <Link href={bookingHref} className="btn-primary" style={{ padding: "16px 36px", fontSize: "1.1rem" }}>
-            <Calendar size={20} /> Agendar na Barbeiro Premium
+            <Calendar size={20} /> Agendar na Barberia do Jé
           </Link>
           <Link href="/login?role=BARBER" className="btn-secondary" style={{ padding: "16px 28px", fontSize: "1.1rem" }}>
             🟣 Painel do Barbeiro

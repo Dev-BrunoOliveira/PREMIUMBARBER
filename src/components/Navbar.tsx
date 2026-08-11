@@ -13,11 +13,13 @@ export default function Navbar() {
     <nav
       style={{
         backgroundColor: "var(--surface)",
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.15)",
         position: "sticky",
         top: 0,
         zIndex: 50,
-        backdropFilter: "blur(12px)",
+        backdropFilter: "blur(24px) saturate(210%)",
+        WebkitBackdropFilter: "blur(24px) saturate(210%)",
+        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.35), inset 0 -1px 0 0 rgba(255, 255, 255, 0.1)",
         transition: "all 0.3s ease",
       }}
     >
@@ -74,11 +76,11 @@ export default function Navbar() {
                   style={{
                     fontSize: "0.75rem",
                     fontWeight: "700",
-                    padding: "2px 8px",
-                    borderRadius: "10px",
-                    backgroundColor: isBarber ? "rgba(157, 78, 223, 0.2)" : "rgba(229, 9, 20, 0.2)",
-                    color: isBarber ? "#9d4edf" : "#e50914",
-                    border: `1px solid ${isBarber ? "#9d4edf" : "#e50914"}`,
+                    padding: "2px 10px",
+                    borderRadius: "12px",
+                    backgroundColor: isBarber ? "rgba(168, 85, 247, 0.2)" : "rgba(56, 189, 248, 0.2)",
+                    color: "var(--primary)",
+                    border: "1px solid var(--primary)",
                     textTransform: "uppercase",
                   }}
                 >

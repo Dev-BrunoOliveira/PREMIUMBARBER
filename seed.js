@@ -9,7 +9,6 @@ async function main() {
 
     const hashedPassword = await bcrypt.hash('123456', 10);
 
-    // 1. Criar ou atualizar Barbeiro Demo (Profissional)
     let barber = await prisma.user.findFirst({ where: { role: 'BARBER' } });
     
     if (!barber) {

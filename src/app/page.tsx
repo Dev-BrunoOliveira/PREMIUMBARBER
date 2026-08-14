@@ -119,7 +119,7 @@ export default async function Home() {
             </div>
             <div>
               <h4 style={{ fontSize: "1.1rem", marginBottom: "6px" }}>Agendamento 24/7</h4>
-              <p className="label" style={{ textTransform: "none" }}>Marque seu horário em qualquer dia ou hora do dia sem precisar ligar.</p>
+              <p className="label" style={{ textTransform: "none" }}>Marque seu horário em qualquer dia</p>
             </div>
           </div>
 

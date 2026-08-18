@@ -47,10 +47,8 @@ export default function PublicScheduler({
 }) {
   const { data: session } = useSession();
 
-  // Passos: 1 = Servico, 2 = Data & Horario, 3 = Dados do Cliente, 4 = Sucesso
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
 
-  // Estados dos Dados Selecionados
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 

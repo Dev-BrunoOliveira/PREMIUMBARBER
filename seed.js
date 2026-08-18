@@ -45,7 +45,7 @@ async function main() {
         console.log('✅ Cliente criado: cliente@exemplo.com / 123456');
     }
 
-    // 3. Cadastrar os 4 Serviços exatos pedidos pelo usuário
+
     const defaultServices = [
         {
             name: 'Corte',
@@ -92,7 +92,6 @@ async function main() {
     }
     console.log('✅ 4 Serviços essenciais cadastrados com sucesso.');
 
-    // 4. Horários operacionais padrão: 9h, 10h, 11h, (Almoço 12h), 13h, 14h, 15h, 16h, 17h
     const defaultTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"];
     const today = new Date();
 
